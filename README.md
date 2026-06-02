@@ -9,7 +9,7 @@ This is the official repository for the paper **"NaviCache: Test-Time Self-Calib
 ---
 
 ## 🔔 News & Updates
-- **[Jun 2026]** The paper has been accepted by **ICML 2026**!
+- **[May 2026]** The paper has been accepted by **ICML 2026**!
 - **[TBD]** The pre-print will be available on arXiv soon.
 - **[TBD]** Core inference code and pre-trained weights will be released.
 
