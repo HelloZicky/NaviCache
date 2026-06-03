@@ -1,6 +1,6 @@
 # 🚀 NaviCache: Test-Time Self-Calibration Caching for Video Generation (ICML 2026)
 
-[![Static Badge](https://img.shields.io/badge/Paper-Coming_Soon-lightgrey?logo=arxiv)](#) [![Static Badge](https://img.shields.io/badge/Project_Page-Coming_Soon-lightgrey)](#) [![Static Badge](https://img.shields.io/badge/Code-WIP-orange?logo=github)](#) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![Static Badge](https://img.shields.io/badge/Paper-Coming_Soon-lightgrey?logo=arxiv)](#) [![Static Badge](https://img.shields.io/badge/Project_Page-Coming_Soon-lightgrey)](#) [![Static Badge](https://img.shields.io/badge/Code-WIP-orange?logo=github)](#) [![License: Apache2.0](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg)]([https://opensource.org/licenses/MIT](https://img.shields.io/badge/license-Apache%20License%202.0-blue))
 
 This is the official repository for the paper **"NaviCache: Test-Time Self-Calibration Caching for Video Generation"**, accepted to **ICML 2026**.
 
