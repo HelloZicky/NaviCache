@@ -11,16 +11,15 @@ This is the official repository for the paper **"NaviCache: Test-Time Self-Calib
 ## 🔔 News & Updates
 - **[May 2026]** The paper has been accepted by **ICML 2026**!
 - **[TBD]** The pre-print will be available on arXiv soon.
-- **[TBD]** Core inference code and pre-trained weights will be released.
+- **[TBD]** The code of NaviCache will be released.
 
 ---
 
 ## 🛠️ To-Do List
 We are working hard to clean up the code for the community. Here is our release plan:
 - [ ] Release the arXiv pre-print.
-- [ ] Release the core NaviCache self-calibration module.
+- [ ] Release the code of NaviCache.
 - [ ] Provide example scripts and Quick Start guide.
-- [ ] Release pre-trained model checkpoints (if applicable).
 
 ---
 
