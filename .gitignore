@@ -216,3 +216,20 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# NaviCache generated outputs
+outputs/
+output/
+results/
+samples/
+vbench_results/
+*.mp4
+*.gif
+*.png
+*.jpg
+*.jpeg
+*.webp
+time_cost.json
+costtime.json
+batch_eval.txt
+*.log
