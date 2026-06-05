@@ -68,11 +68,11 @@ The evaluation workflow first generates videos from VBench prompts, then compute
 Run from the repository root:
 
 ```shell
-python navicache4opensora/eval/navicache/experiments/opensora.py \
+python NaviCache4OpenSora/eval/navicache/experiments/opensora.py \
     --transformer_path checkpoints/opensora/OpenSora-STDiT-v3 \
     --vae_path checkpoints/opensora/OpenSora-VAE-v1.2 \
     --text_encoder_path checkpoints/opensora/t5-v1_1-xxl \
-    --prompt_path navicache4opensora/eval/navicache/vbench/VBench_full_info.json \
+    --prompt_path NaviCache4OpenSora/eval/navicache/vbench/VBench_full_info.json \
     --navicache_thresh 0.35 \
     --navicache_align_steps 5
 ```
@@ -82,21 +82,21 @@ By default, `opensora.py` uses `--loop 5` and generates five random videos for e
 The script reads prompts from:
 
 ```text
-navicache4opensora/eval/navicache/vbench/VBench_full_info.json
+NaviCache4OpenSora/eval/navicache/vbench/VBench_full_info.json
 ```
 
 and saves videos to:
 
 ```text
-navicache4opensora/eval/navicache/samples/opensora_base
-navicache4opensora/eval/navicache/samples/opensora_navicache
+NaviCache4OpenSora/eval/navicache/samples/opensora_base
+NaviCache4OpenSora/eval/navicache/samples/opensora_navicache
 ```
 
 To run only one generation branch:
 
 ```shell
-python navicache4opensora/eval/navicache/experiments/opensora.py --mode base
-python navicache4opensora/eval/navicache/experiments/opensora.py --mode navicache
+python NaviCache4OpenSora/eval/navicache/experiments/opensora.py --mode base
+python NaviCache4OpenSora/eval/navicache/experiments/opensora.py --mode navicache
 ```
 
 NaviCache hyperparameters can be changed directly from the command line.
@@ -104,20 +104,20 @@ NaviCache hyperparameters can be changed directly from the command line.
 ### Calculate VBench
 
 ```shell
-python navicache4opensora/eval/navicache/vbench/run_vbench.py \
-    --video_path navicache4opensora/eval/navicache/samples/opensora_navicache \
-    --save_path navicache4opensora/eval/navicache/vbench_results/navicache
+python NaviCache4OpenSora/eval/navicache/vbench/run_vbench.py \
+    --video_path NaviCache4OpenSora/eval/navicache/samples/opensora_navicache \
+    --save_path NaviCache4OpenSora/eval/navicache/vbench_results/navicache
 
-python navicache4opensora/eval/navicache/vbench/cal_vbench.py \
-    --score_dir navicache4opensora/eval/navicache/vbench_results/navicache
+python NaviCache4OpenSora/eval/navicache/vbench/cal_vbench.py \
+    --score_dir NaviCache4OpenSora/eval/navicache/vbench_results/navicache
 ```
 
 ### Calculate PSNR, LPIPS, and SSIM
 
 ```shell
-python navicache4opensora/eval/navicache/common_metrics/eval.py \
-    --gt_video_dir navicache4opensora/eval/navicache/samples/opensora_base \
-    --generated_video_dir navicache4opensora/eval/navicache/samples/opensora_navicache
+python NaviCache4OpenSora/eval/navicache/common_metrics/eval.py \
+    --gt_video_dir NaviCache4OpenSora/eval/navicache/samples/opensora_base \
+    --generated_video_dir NaviCache4OpenSora/eval/navicache/samples/opensora_navicache
 ```
 
 ## Acknowledgements
