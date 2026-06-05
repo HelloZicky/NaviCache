@@ -33,17 +33,17 @@ The following paper figures are included as PDF files under [`assets/`](assets/)
 | Figure 3 | Video generation case study | [PDF](assets/exp_video_case_brief.pdf) |
 | Figure 4 | Skip frequency and compute ratio across timesteps | [PDF](assets/exp_request_freq.pdf) |
 
-### Video Case Study
+## 🎬 Video Case Study
 
-We also provide the generated videos used in the case study for direct comparison:
+We provide the generated videos from the Wan2.1 case study for direct comparison.
 
-| Method    | Video                                                   |
-| --------- | ------------------------------------------------------- |
-| Wan2.1    | [wan.mp4](assets/cases/wan/wan.mp4)                     |
-| TeaCache  | [wan_teacache.mp4](assets/cases/wan/wan_teacache.mp4)   |
-| MagCache  | [wan_magcache.mp4](assets/cases/wan/wan_magcache.mp4)   |
-| EasyCache | [wan_easycache.mp4](assets/cases/wan/wan_easycache.mp4) |
-| NaviCache | [wan_navicache.mp4](assets/cases/wan/wan_navicache.mp4) |
+| Method | Video |
+|---|---|
+| Wan2.1 | [wan.mp4](https://github.com/HelloZicky/NaviCache/blob/main/assets/case/wan.mp4) |
+| TeaCache | [wan_teacache.mp4](https://github.com/HelloZicky/NaviCache/blob/main/assets/case/wan_teacache.mp4) |
+| MagCache | [wan_magcache.mp4](https://github.com/HelloZicky/NaviCache/blob/main/assets/case/wan_magcache.mp4) |
+| EasyCache | [wan_easycache.mp4](https://github.com/HelloZicky/NaviCache/blob/main/assets/case/wan_easycache.mp4) |
+| NaviCache | [wan_navicache.mp4](https://github.com/HelloZicky/NaviCache/blob/main/assets/case/wan_navicache.mp4) |
 
 
 
