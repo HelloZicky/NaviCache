@@ -16,6 +16,7 @@ from typing import Optional, Union, Dict
 import torch
 import json
 
+
 def navicache_forward(
         self,
         x: torch.Tensor,
@@ -28,6 +29,7 @@ def navicache_forward(
         guidance: torch.Tensor = None,
         return_dict: bool = True,
 ) -> Union[torch.Tensor, Dict[str, torch.Tensor]]:
+    """Forward pass with NaviCache residual reuse for HunyuanVideo."""
     torch.cuda.synchronize()
     start_time = time.time()
 
@@ -50,6 +52,8 @@ def navicache_forward(
             raise ValueError("Didn't get guidance strength for guidance distilled model.")
         vec = vec + self.guidance_in(guidance)
 
+    # Compute early alignment and the final step exactly; these anchor the
+    # residual cache before estimating whether intermediate steps can be reused.
     if self.navicache_step < self.navicache_align_steps or self.navicache_step >= self.navicache_num_steps - 1:
         should_compute = True
         self.navicache_accumulated_error = 0
@@ -60,6 +64,8 @@ def navicache_forward(
 
             raw_input_change = (raw_input - self.navicache_previous_raw_input).abs().mean()
 
+            # Predict output drift from latent drift using the self-calibrated
+            # state ratio estimated from previous exact transformer passes.
             if hasattr(self, 'navicache_state_ratio') and self.navicache_state_ratio is not None:
                 self.navicache_prediction_ratio = self.navicache_state_ratio
 
@@ -81,6 +87,8 @@ def navicache_forward(
     self.navicache_previous_raw_input = raw_input.clone()
 
     if not should_compute and self.navicache_residual is not None:
+        # Reuse the cached residual when the accumulated predicted drift remains
+        # below the threshold, avoiding a full transformer evaluation.
         result = raw_input + self.navicache_residual
         self.navicache_step += 1
 
@@ -128,6 +136,8 @@ def navicache_forward(
     img = self.final_layer(img, vec)
     result = self.unpatchify(img, tt, th, tw)
 
+    # Refresh the residual cache after an exact pass and update the online
+    # calibration state used to predict the next-step output drift.
     self.navicache_residual = result - raw_input
     if hasattr(self, 'navicache_previous_output') and self.navicache_previous_output is not None:
         output_change = (result - self.navicache_previous_output).abs().mean()

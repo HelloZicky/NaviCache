@@ -617,6 +617,9 @@ class OpenSoraPipeline(VideoSysPipeline):
                 )
 
             # == sampling ==
+            # RFLOW iteratively denoises the latent video. NaviCache hooks into
+            # the transformer calls inside this scheduler path to skip stable
+            # feature updates while preserving the native sampling interface.
             input_size = (num_frames, *image_size)
             latent_size = self.vae.get_latent_size(input_size)
             z = torch.randn(
