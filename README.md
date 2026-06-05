@@ -107,7 +107,7 @@ For easier preview and quick visual comparison, we also provide clickable GIF pr
 |---|---|---|---|
 | Wan2.1 | Text-to-Video / Image-to-Video | `NaviCache4Wan2.1/navicache_generate.py` | `scripts/wan/` |
 | HunyuanVideo | Text-to-Video | `NaviCache4HunyuanVideo/navicache_sample_video.py` | `scripts/hunyuan/` |
-| Open-Sora 1.2 | Text-to-Video / Evaluation | `navicache4opensora/eval/navicache/experiments/opensora.py` | `scripts/opensora/` |
+| Open-Sora 1.2 | Text-to-Video / Evaluation | `NaviCache4OpenSora/eval/navicache/experiments/opensora.py` | `scripts/opensora/` |
 
 ## ⚙️ Installation
 
@@ -251,10 +251,10 @@ NaviCache reformulates feature caching in video diffusion models as a test-time 
 
 ```text
 NaviCache/
-├── NaviCache4Wan2.1/              # NaviCache script for Wan2.1
 ├── NaviCache4HunyuanVideo/        # NaviCache script for HunyuanVideo
+├── NaviCache4OpenSora/            # Open-Sora NaviCache evaluation and VideoSys modules
+├── NaviCache4Wan2.1/              # NaviCache script for Wan2.1
 ├── assets/                        # Paper figure PDFs
-├── navicache4opensora/            # Open-Sora NaviCache evaluation and VideoSys modules
 ├── scripts/                       # Runnable helper scripts
 ├── requirements.txt
 ├── LICENSE
