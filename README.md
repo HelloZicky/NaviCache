@@ -46,25 +46,44 @@ We provide the generated videos from the Wan2.1 case study for direct comparison
 | NaviCache | [wan_navicache.mp4](https://github.com/HelloZicky/NaviCache/blob/main/assets/case/wan_navicache.mp4) |
 
 
-For easier preview, we provide clickable thumbnails below in the same order as the table: Wan2.1, TeaCache, MagCache, EasyCache, and NaviCache.
+For easier preview and quick visual comparison, we also provide clickable GIF previews below. Click each GIF to open the corresponding full video.
 
-<p align="center">
-  <a href="https://github.com/user-attachments/assets/8d6f9434-98c4-45b9-986b-d79a631d17b3">
-    <img src="assets/case/wan_thumb.jpg" width="18%">
-  </a>
-  <a href="https://github.com/user-attachments/assets/b338fa56-b647-4da2-a76f-2c76cf1f8e32">
-    <img src="assets/case/wan_teacache_thumb.jpg" width="18%">
-  </a>
-  <a href="https://github.com/user-attachments/assets/1bbe3528-171c-434b-929f-6dfbff9b6373">
-    <img src="assets/case/wan_magcache_thumb.jpg" width="18%">
-  </a>
-  <a href="https://github.com/user-attachments/assets/e02d48d7-1edb-4bc1-8d91-4b6b79e2099b">
-    <img src="assets/case/wan_easycache_thumb.jpg" width="18%">
-  </a>
-  <a href="https://github.com/user-attachments/assets/11340d6b-a85c-4f7c-bf09-40b17622e4e6">
-    <img src="assets/case/wan_navicache_thumb.jpg" width="18%">
-  </a>
-</p>
+<table>
+  <tr>
+    <td align="center"><b>Wan2.1</b></td>
+    <td align="center"><b>TeaCache</b></td>
+    <td align="center"><b>MagCache</b></td>
+    <td align="center"><b>EasyCache</b></td>
+    <td align="center"><b>NaviCache</b></td>
+  </tr>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/HelloZicky/NaviCache/blob/main/assets/case/wan.mp4">
+        <img src="assets/case/wan.gif" width="180">
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/HelloZicky/NaviCache/blob/main/assets/case/wan_teacache.mp4">
+        <img src="assets/case/wan_teacache.gif" width="180">
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/HelloZicky/NaviCache/blob/main/assets/case/wan_magcache.mp4">
+        <img src="assets/case/wan_magcache.gif" width="180">
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/HelloZicky/NaviCache/blob/main/assets/case/wan_easycache.mp4">
+        <img src="assets/case/wan_easycache.gif" width="180">
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/HelloZicky/NaviCache/blob/main/assets/case/wan_navicache.mp4">
+        <img src="assets/case/wan_navicache.gif" width="180">
+      </a>
+    </td>
+  </tr>
+</table>
 
 
 
