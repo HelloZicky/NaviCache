@@ -73,27 +73,27 @@ For easier preview and quick visual comparison, we also provide clickable GIF pr
   <tr>
     <td align="center">
       <a href="https://github.com/HelloZicky/NaviCache/blob/main/assets/case/wan.mp4">
-        <img src="assets/case/wan.gif" width="150">
+        <img src="assets/case/wan.gif" width="140">
       </a>
     </td>
     <td align="center">
       <a href="https://github.com/HelloZicky/NaviCache/blob/main/assets/case/wan_teacache.mp4">
-        <img src="assets/case/wan_teacache.gif" width="150">
+        <img src="assets/case/wan_teacache.gif" width="140">
       </a>
     </td>
     <td align="center">
       <a href="https://github.com/HelloZicky/NaviCache/blob/main/assets/case/wan_magcache.mp4">
-        <img src="assets/case/wan_magcache.gif" width="150">
+        <img src="assets/case/wan_magcache.gif" width="140">
       </a>
     </td>
     <td align="center">
       <a href="https://github.com/HelloZicky/NaviCache/blob/main/assets/case/wan_easycache.mp4">
-        <img src="assets/case/wan_easycache.gif" width="150">
+        <img src="assets/case/wan_easycache.gif" width="140">
       </a>
     </td>
     <td align="center">
       <a href="https://github.com/HelloZicky/NaviCache/blob/main/assets/case/wan_navicache.mp4">
-        <img src="assets/case/wan_navicache.gif" width="150">
+        <img src="assets/case/wan_navicache.gif" width="140">
       </a>
     </td>
   </tr>
