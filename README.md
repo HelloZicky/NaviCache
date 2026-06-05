@@ -22,6 +22,20 @@ This is the official repository for **NaviCache: Test-Time Self-Calibration Cach
 - **[Coming Soon]** arXiv preprint.
 - **[Coming Soon]** Project page and demo videos.
 
+## 📖 Citation
+
+If you find NaviCache useful, please consider citing:
+
+```bibtex
+@inproceedings{lv2026navicache,
+  author    = {Zheqi Lv and Zhibo Zhu and Jinke Wang and Qi Tian and Shengyu Zhang and Zhengyu Chen and Chengxi Zang and Zhou Zhao and Fei Wu},
+  title     = {NaviCache: Test-Time Self-Calibration Caching for Video Generation},
+  booktitle = {Proceedings of the 43rd International Conference on Machine Learning},
+  year      = {2026},
+  publisher = {PMLR}
+}
+```
+
 ## 🖼️ Figures
 
 The following paper figures are included as PDF files under [`assets/`](assets/). No PNG previews are required.
