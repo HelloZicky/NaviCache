@@ -1,4 +1,4 @@
-# NaviCache4Wan2.1
+# NaviCache for Wan2.1
 
 NaviCache is a training-free test-time self-calibration caching method for accelerating video diffusion models. This directory provides the NaviCache generation script for [Wan2.1](https://github.com/Wan-Video/Wan2.1).
 
