@@ -1,4 +1,4 @@
-# NaviCache4HunyuanVideo
+# NaviCache for HunyuanVideo
 
 NaviCache is a training-free test-time self-calibration caching method for accelerating video generation. This directory provides the NaviCache sampling script for [HunyuanVideo](https://github.com/Tencent-Hunyuan/HunyuanVideo).
 
