@@ -39,7 +39,7 @@ We provide the generated videos from the Wan2.1 case study for direct comparison
 
 | Method | Video |
 |---|---|
-| Wan2.1 | [wan.mp4](https://github.com/HelloZicky/NaviCache/blob/main/assets/case/wan.mp4) |
+| Wan2.1 | https://github.com/HelloZicky/NaviCache/blob/main/assets/case/wan.mp4 |
 | TeaCache | [wan_teacache.mp4](https://github.com/HelloZicky/NaviCache/blob/main/assets/case/wan_teacache.mp4) |
 | MagCache | [wan_magcache.mp4](https://github.com/HelloZicky/NaviCache/blob/main/assets/case/wan_magcache.mp4) |
 | EasyCache | [wan_easycache.mp4](https://github.com/HelloZicky/NaviCache/blob/main/assets/case/wan_easycache.mp4) |
