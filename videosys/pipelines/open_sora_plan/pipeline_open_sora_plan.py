@@ -524,7 +524,7 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
 
             # import torch.nn.functional as F
 
-            # padding = (0, 0, 0, 113)  # (左, 右, 下, 上)
+            # padding = (0, 0, 0, 113)  # (left, right, bottom, top)
             # masked_prompt_embeds_ = F.pad(masked_prompt_embeds, padding, "constant", 0)
             # masked_negative_prompt_embeds_ = F.pad(masked_negative_prompt_embeds, padding, "constant", 0)
 
