@@ -16,11 +16,11 @@ cd "${NAVICACHE_ROOT}"
 : "${TRANSFORMER_PATH:=checkpoints/opensora/OpenSora-STDiT-v3}"
 : "${VAE_PATH:=checkpoints/opensora/OpenSora-VAE-v1.2}"
 : "${TEXT_ENCODER_PATH:=checkpoints/opensora/t5-v1_1-xxl}"
-: "${PROMPT_PATH:=eval/navicache/vbench/VBench_full_info.json}"
+: "${PROMPT_PATH:=navicache4opensora/eval/navicache/vbench/VBench_full_info.json}"
 : "${NAVICACHE_THRESH:=0.35}"
 : "${NAVICACHE_ALIGN_STEPS:=5}"
 
-python eval/navicache/experiments/opensora.py \
+python navicache4opensora/eval/navicache/experiments/opensora.py \
     --transformer_path "${TRANSFORMER_PATH}" \
     --vae_path "${VAE_PATH}" \
     --text_encoder_path "${TEXT_ENCODER_PATH}" \

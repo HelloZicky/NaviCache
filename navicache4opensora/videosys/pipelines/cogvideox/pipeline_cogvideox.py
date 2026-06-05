@@ -674,7 +674,8 @@ class CogVideoXPipeline(VideoSysPipeline):
             else None
         )
 
-        # 8. Denoising loop
+        # 8. Denoising loop. Each step calls the video transformer before the
+        # scheduler update, which is the core path targeted by cache reuse.
         num_warmup_steps = max(len(timesteps) - num_inference_steps * self.scheduler.order, 0)
 
         # with self.progress_bar(total=num_inference_steps) as progress_bar:

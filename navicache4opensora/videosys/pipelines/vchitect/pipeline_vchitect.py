@@ -912,7 +912,8 @@ class VchitectXLPipeline(VideoSysPipeline):
             latents,
         )
 
-        # 6. Denoising loop
+        # 6. Denoising loop. Conditional and unconditional transformer passes
+        # dominate sampling latency and motivate residual/feature caching.
         # with self.progress_bar(total=num_inference_steps) as progress_bar:
         for i, t in tqdm(enumerate(timesteps), total=len(timesteps)):
             if self.interrupt:

@@ -1,87 +1,63 @@
-# Adapted from Open-Sora-Plan
+# Adapted from Latte
 
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 # --------------------------------------------------------
 # References:
-# Open-Sora-Plan: https://github.com/PKU-YuanGroup/Open-Sora-Plan
+# Latte: https://github.com/Vchitect/Latte
 # --------------------------------------------------------
 
 import html
 import inspect
-import math
 import re
 import urllib.parse as ul
 from typing import Callable, List, Optional, Tuple, Union
 
+import einops
 import ftfy
 import torch
 import torch.distributed as dist
 import tqdm
 from bs4 import BeautifulSoup
-from diffusers.models import AutoencoderKL, Transformer2DModel
-from diffusers.schedulers import EulerAncestralDiscreteScheduler, PNDMScheduler
+from diffusers.image_processor import VaeImageProcessor
+from diffusers.models import AutoencoderKL, AutoencoderKLTemporalDecoder
+from diffusers.schedulers import DDIMScheduler
 from diffusers.utils.torch_utils import randn_tensor
-from transformers import AutoTokenizer, MT5EncoderModel, T5EncoderModel, T5Tokenizer
+from transformers import T5EncoderModel, T5Tokenizer
 
 from videosys.core.pab_mgr import PABConfig, set_pab_manager, update_steps
 from videosys.core.pipeline import VideoSysPipeline, VideoSysPipelineOutput
-from videosys.models.autoencoders.autoencoder_kl_open_sora_plan_v110 import (
-    CausalVAEModelWrapper as CausalVAEModelWrapperV110,
-)
-from videosys.models.autoencoders.autoencoder_kl_open_sora_plan_v120 import (
-    CausalVAEModelWrapper as CausalVAEModelWrapperV120,
-)
-from videosys.models.transformers.open_sora_plan_v110_transformer_3d import LatteT2V
-from videosys.models.transformers.open_sora_plan_v120_transformer_3d import OpenSoraT2V
+from videosys.models.transformers.latte_transformer_3d import LatteT2V
 from videosys.utils.logging import logger
 from videosys.utils.utils import save_video, set_seed
 
 
-class OpenSoraPlanV110PABConfig(PABConfig):
+class LattePABConfig(PABConfig):
     def __init__(
         self,
         spatial_broadcast: bool = True,
-        spatial_threshold: list = [100, 850],
+        spatial_threshold: list = [100, 800],
         spatial_range: int = 2,
         temporal_broadcast: bool = True,
-        temporal_threshold: list = [100, 850],
-        temporal_range: int = 4,
+        temporal_threshold: list = [100, 800],
+        temporal_range: int = 3,
         cross_broadcast: bool = True,
-        cross_threshold: list = [100, 850],
+        cross_threshold: list = [100, 800],
         cross_range: int = 6,
         mlp_broadcast: bool = True,
         mlp_spatial_broadcast_config: dict = {
-            738: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            714: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            690: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            666: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            642: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            618: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            594: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            570: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            546: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            522: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            498: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            474: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            450: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            426: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
+            720: {"block": [0, 1, 2, 3, 4], "skip_count": 2},
+            640: {"block": [0, 1, 2, 3, 4], "skip_count": 2},
+            560: {"block": [0, 1, 2, 3, 4], "skip_count": 2},
+            480: {"block": [0, 1, 2, 3, 4], "skip_count": 2},
+            400: {"block": [0, 1, 2, 3, 4], "skip_count": 2},
         },
         mlp_temporal_broadcast_config: dict = {
-            738: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            714: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            690: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            666: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            642: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            618: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            594: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            570: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            546: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            522: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            498: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            474: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            450: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
-            426: {"block": [0, 1, 2, 3, 4, 5, 6], "skip_count": 2},
+            720: {"block": [0, 1, 2, 3, 4], "skip_count": 2},
+            640: {"block": [0, 1, 2, 3, 4], "skip_count": 2},
+            560: {"block": [0, 1, 2, 3, 4], "skip_count": 2},
+            480: {"block": [0, 1, 2, 3, 4], "skip_count": 2},
+            400: {"block": [0, 1, 2, 3, 4], "skip_count": 2},
         },
     ):
         super().__init__(
@@ -100,29 +76,9 @@ class OpenSoraPlanV110PABConfig(PABConfig):
         )
 
 
-class OpenSoraPlanV120PABConfig(PABConfig):
-    def __init__(
-        self,
-        spatial_broadcast: bool = True,
-        spatial_threshold: list = [100, 850],
-        spatial_range: int = 2,
-        cross_broadcast: bool = True,
-        cross_threshold: list = [100, 850],
-        cross_range: int = 6,
-    ):
-        super().__init__(
-            spatial_broadcast=spatial_broadcast,
-            spatial_threshold=spatial_threshold,
-            spatial_range=spatial_range,
-            cross_broadcast=cross_broadcast,
-            cross_threshold=cross_threshold,
-            cross_range=cross_range,
-        )
-
-
-class OpenSoraPlanConfig:
+class LatteConfig:
     """
-    This config is to instantiate a `OpenSoraPlanPipeline` class for video generation.
+    This config is to instantiate a `LattePipeline` class for video generation.
 
     To be specific, this config will be passed to engine by `VideoSysEngine(config)`.
     In the engine, it will be used to instantiate the corresponding pipeline class.
@@ -130,20 +86,20 @@ class OpenSoraPlanConfig:
     If you want to explore the detail of generation, please refer to the pipeline class below.
 
     Args:
-        transformer (str):
-            The transformer model to use. Defaults to "LanguageBind/Open-Sora-Plan-v1.1.0".
-        ae (str):
-            The Autoencoder model to use. Defaults to "CausalVAEModel_4x8x8".
-        text_encoder (str):
-            The text encoder model to use. Defaults to "DeepFloyd/t5-v1_1-xxl".
-        num_frames (int):
-            The number of frames to generate. Must be one of [65, 221].
+        model_path (str):
+            A path to the pretrained pipeline. Defaults to "maxin-cn/Latte-1".
         num_gpus (int):
             The number of GPUs to use. Defaults to 1.
-        enable_tiling (bool):
-            Whether to enable tiling. Defaults to True.
-        tile_overlap_factor (float):
-            The overlap factor for tiling. Defaults to 0.25.
+        enable_vae_temporal_decoder (bool):
+            Whether to enable VAE Temporal Decoder. Defaults to True.
+        beta_start (float):
+            The initial value of beta for DDIM. Defaults to 0.0001.
+        beta_end (float):
+            The final value of beta for DDIM. Defaults to 0.02.
+        beta_schedule (str):
+            The schedule of beta for DDIM. Defaults to "linear".
+        variance_type (str):
+            The type of variance for DDIM. Defaults to "learned_range".
         enable_pab (bool):
             Whether to enable Pyramid Attention Broadcast. Defaults to False.
         pab_config (CogVideoXPABConfig):
@@ -151,18 +107,18 @@ class OpenSoraPlanConfig:
 
     Examples:
         ```python
-        from videosys import OpenSoraPlanConfig, VideoSysEngine
+        from videosys import LatteConfig, VideoSysEngine
 
-        # num frames: 65 or 221
         # change num_gpus for multi-gpu inference
-        config = OpenSoraPlanConfig(num_frames=65, num_gpus=1)
+        config = LatteConfig("maxin-cn/Latte-1", num_gpus=1)
         engine = VideoSysEngine(config)
 
         prompt = "Sunset over the sea."
+        # video size is fixed to 16 frames, 512x512.
         video = engine.generate(
             prompt=prompt,
             guidance_scale=7.5,
-            num_inference_steps=150,
+            num_inference_steps=50,
         ).video[0]
         engine.save_video(video, f"./outputs/{prompt}.mp4")
         ```
@@ -170,62 +126,41 @@ class OpenSoraPlanConfig:
 
     def __init__(
         self,
-        version: str = "v120",
-        transformer_type: str = "29x480p",
-        transformer: str = None,
-        text_encoder: str = None,
-        # ======= distributed ========
+        model_path: str = "maxin-cn/Latte-1",
+        # ======= distributed =======
         num_gpus: int = 1,
+        # ======= vae ========
+        enable_vae_temporal_decoder: bool = True,
+        # ======= scheduler ========
+        beta_start: float = 0.0001,
+        beta_end: float = 0.02,
+        beta_schedule: str = "linear",
+        variance_type: str = "learned_range",
         # ======= memory =======
         cpu_offload: bool = False,
-        enable_tiling: bool = True,
-        tile_overlap_factor: float = 0.25,
         # ======= pab ========
         enable_pab: bool = False,
-        pab_config: PABConfig = None,
+        pab_config: PABConfig = LattePABConfig(),
     ):
-        self.pipeline_cls = OpenSoraPlanPipeline
-
-        # get version
-        assert version in ["v110", "v120"], f"Unknown Open-Sora-Plan version: {version}"
-        self.version = version
-        self.transformer_type = transformer_type
-
-        # check transformer_type
-        if version == "v110":
-            assert transformer_type in ["65x512x512", "221x512x512"]
-        elif version == "v120":
-            assert transformer_type in ["93x480p", "93x720p", "29x480p", "29x720p"]
-        self.num_frames = int(transformer_type.split("x")[0])
-
-        # set default values according to version
-        if version == "v110":
-            transformer_default = "LanguageBind/Open-Sora-Plan-v1.1.0"
-            text_encoder_default = "DeepFloyd/t5-v1_1-xxl"
-        elif version == "v120":
-            transformer_default = "LanguageBind/Open-Sora-Plan-v1.2.0"
-            text_encoder_default = "google/mt5-xxl"
-        self.text_encoder = text_encoder or text_encoder_default
-        self.transformer = transformer or transformer_default
-
-        # ======= distributed ========
+        self.model_path = model_path
+        self.pipeline_cls = LattePipeline
+        # ======= distributed =======
         self.num_gpus = num_gpus
+        # ======= vae ========
+        self.enable_vae_temporal_decoder = enable_vae_temporal_decoder
         # ======= memory ========
         self.cpu_offload = cpu_offload
-        self.enable_tiling = enable_tiling
-        self.tile_overlap_factor = tile_overlap_factor
+        # ======= scheduler ========
+        self.beta_start = beta_start
+        self.beta_end = beta_end
+        self.beta_schedule = beta_schedule
+        self.variance_type = variance_type
         # ======= pab ========
         self.enable_pab = enable_pab
-        if self.enable_pab and pab_config is None:
-            if version == "v110":
-                self.pab_config = OpenSoraPlanV110PABConfig()
-            elif version == "v120":
-                self.pab_config = OpenSoraPlanV120PABConfig()
-        else:
-            self.pab_config = pab_config
+        self.pab_config = pab_config
 
 
-class OpenSoraPlanPipeline(VideoSysPipeline):
+class LattePipeline(VideoSysPipeline):
     r"""
     Pipeline for text-to-image generation using PixArt-Alpha.
 
@@ -256,70 +191,46 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
 
     def __init__(
         self,
-        config: OpenSoraPlanConfig,
+        config: LatteConfig,
         tokenizer: Optional[T5Tokenizer] = None,
         text_encoder: Optional[T5EncoderModel] = None,
         vae: Optional[AutoencoderKL] = None,
-        transformer: Optional[Transformer2DModel] = None,
-        scheduler: Optional[PNDMScheduler] = None,
+        transformer: Optional[LatteT2V] = None,
+        scheduler: Optional[DDIMScheduler] = None,
         device: torch.device = torch.device("cuda"),
         dtype: torch.dtype = torch.float16,
     ):
         super().__init__()
         self._config = config
 
-        # init
-        if tokenizer is None:
-            if config.version == "v110":
-                tokenizer = T5Tokenizer.from_pretrained(config.text_encoder)
-            elif config.version == "v120":
-                tokenizer = AutoTokenizer.from_pretrained(config.text_encoder)
-
-        if text_encoder is None:
-            if config.version == "v110":
-                text_encoder = T5EncoderModel.from_pretrained(config.text_encoder, torch_dtype=dtype)
-            elif config.version == "v120":
-                text_encoder = MT5EncoderModel.from_pretrained(
-                    config.text_encoder, low_cpu_mem_usage=True, torch_dtype=dtype
-                )
-
-        if vae is None:
-            if config.version == "v110":
-                vae = CausalVAEModelWrapperV110(config.transformer, subfolder="vae").to(dtype=dtype)
-            elif config.version == "v120":
-                vae = CausalVAEModelWrapperV120(config.transformer, subfolder="vae").to(dtype=dtype)
-
+        # initialize the model if not provided
         if transformer is None:
-            if config.version == "v110":
-                transformer = LatteT2V.from_pretrained(
-                    config.transformer, subfolder=config.transformer_type, torch_dtype=dtype
+            transformer = LatteT2V.from_pretrained(config.model_path, subfolder="transformer", video_length=16).to(
+                dtype=dtype
+            )
+        if vae is None:
+            if config.enable_vae_temporal_decoder:
+                vae = AutoencoderKLTemporalDecoder.from_pretrained(
+                    config.model_path, subfolder="vae_temporal_decoder", torch_dtype=dtype
                 )
-            elif config.version == "v120":
-                transformer = OpenSoraT2V.from_pretrained(
-                    config.transformer, subfolder=config.transformer_type, torch_dtype=dtype
-                )
-
+            else:
+                vae = AutoencoderKL.from_pretrained(config.model_path, subfolder="vae", torch_dtype=dtype)
+        if tokenizer is None:
+            tokenizer = T5Tokenizer.from_pretrained(config.model_path, subfolder="tokenizer")
+        if text_encoder is None:
+            text_encoder = T5EncoderModel.from_pretrained(
+                config.model_path, subfolder="text_encoder", torch_dtype=dtype
+            )
         if scheduler is None:
-            if config.version == "v110":
-                scheduler = PNDMScheduler()
-            elif config.version == "v120":
-                scheduler = EulerAncestralDiscreteScheduler()
-
-        # setting
-        if config.enable_tiling:
-            vae.vae.enable_tiling()
-            vae.vae.tile_overlap_factor = config.tile_overlap_factor
-            vae.vae.tile_sample_min_size = 512
-            vae.vae.tile_latent_min_size = 64
-            vae.vae.tile_sample_min_size_t = 29
-            vae.vae.tile_latent_min_size_t = 8
-            # if low_mem:
-            #     vae.vae.tile_sample_min_size = 256
-            #     vae.vae.tile_latent_min_size = 32
-            #     vae.vae.tile_sample_min_size_t = 29
-            #     vae.vae.tile_latent_min_size_t = 8
-        vae.vae_scale_factor = [4, 8, 8]
-        transformer.force_images = False
+            scheduler = DDIMScheduler.from_pretrained(
+                config.model_path,
+                subfolder="scheduler",
+                beta_start=config.beta_start,
+                beta_end=config.beta_end,
+                beta_schedule=config.beta_schedule,
+                variance_type=config.variance_type,
+                clip_sample=False,
+            )
 
         # pab
         if config.enable_pab:
@@ -335,7 +246,8 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
         else:
             self.set_eval_and_device(device, text_encoder, vae, transformer)
 
-        # self.vae_scale_factor = 2 ** (len(self.vae.config.block_out_channels) - 1)
+        self.vae_scale_factor = 2 ** (len(self.vae.config.block_out_channels) - 1)
+        self.image_processor = VaeImageProcessor(vae_scale_factor=self.vae_scale_factor)
 
         # parallel
         self._set_parallel()
@@ -424,7 +336,7 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
             batch_size = prompt_embeds.shape[0]
 
         # See Section 3.1. of the paper.
-        max_length = 300
+        max_length = 120
 
         if prompt_embeds is None:
             prompt = self._text_preprocessing(prompt, clean_caption=clean_caption)
@@ -445,7 +357,7 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
             ):
                 removed_text = self.tokenizer.batch_decode(untruncated_ids[:, max_length - 1 : -1])
                 logger.warning(
-                    "The following part of your input was truncated because the model can only handle sequences up to"
+                    "The following part of your input was truncated because CLIP can only handle sequences up to"
                     f" {max_length} tokens: {removed_text}"
                 )
 
@@ -510,9 +422,6 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
         else:
             negative_prompt_embeds = None
 
-        # print(prompt_embeds.shape) # 1 120 4096
-        # print(negative_prompt_embeds.shape) # 1 120 4096
-
         # Perform additional masking.
         if mask_feature and not embeds_initially_provided:
             prompt_embeds = prompt_embeds.unsqueeze(1)
@@ -534,143 +443,6 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
             # return masked_prompt_embeds_, masked_negative_prompt_embeds_
 
         return prompt_embeds, negative_prompt_embeds
-
-    def encode_prompt_v120(
-        self,
-        prompt: Union[str, List[str]],
-        do_classifier_free_guidance: bool = True,
-        negative_prompt: str = "",
-        num_images_per_prompt: int = 1,
-        device: Optional[torch.device] = None,
-        prompt_embeds: Optional[torch.FloatTensor] = None,
-        negative_prompt_embeds: Optional[torch.FloatTensor] = None,
-        prompt_attention_mask: Optional[torch.FloatTensor] = None,
-        negative_prompt_attention_mask: Optional[torch.FloatTensor] = None,
-        clean_caption: bool = False,
-        max_sequence_length: int = 120,
-        **kwargs,
-    ):
-        r"""
-        Encodes the prompt into text encoder hidden states.
-
-        Args:
-            prompt (`str` or `List[str]`, *optional*):
-                prompt to be encoded
-            negative_prompt (`str` or `List[str]`, *optional*):
-                The prompt not to guide the image generation. If not defined, one has to pass `negative_prompt_embeds`
-                instead. Ignored when not using guidance (i.e., ignored if `guidance_scale` is less than `1`). For
-                PixArt-Alpha, this should be "".
-            do_classifier_free_guidance (`bool`, *optional*, defaults to `True`):
-                whether to use classifier free guidance or not
-            num_images_per_prompt (`int`, *optional*, defaults to 1):
-                number of images that should be generated per prompt
-            device: (`torch.device`, *optional*):
-                torch device to place the resulting embeddings on
-            prompt_embeds (`torch.FloatTensor`, *optional*):
-                Pre-generated text embeddings. Can be used to easily tweak text inputs, *e.g.* prompt weighting. If not
-                provided, text embeddings will be generated from `prompt` input argument.
-            negative_prompt_embeds (`torch.FloatTensor`, *optional*):
-                Pre-generated negative text embeddings. For PixArt-Alpha, it's should be the embeddings of the ""
-                string.
-            clean_caption (`bool`, defaults to `False`):
-                If `True`, the function will preprocess and clean the provided caption before encoding.
-            max_sequence_length (`int`, defaults to 120): Maximum sequence length to use for the prompt.
-        """
-        if device is None:
-            device = getattr(self, "_execution_device", None) or getattr(self, "device", None) or torch.device("cuda")
-
-        if prompt is not None and isinstance(prompt, str):
-            batch_size = 1
-        elif prompt is not None and isinstance(prompt, list):
-            batch_size = len(prompt)
-        else:
-            batch_size = prompt_embeds.shape[0]
-
-        # See Section 3.1. of the paper.
-        max_length = max_sequence_length
-
-        if prompt_embeds is None:
-            prompt = self._text_preprocessing(prompt, clean_caption=clean_caption)
-            text_inputs = self.tokenizer(
-                prompt,
-                padding="max_length",
-                max_length=max_length,
-                truncation=True,
-                add_special_tokens=True,
-                return_tensors="pt",
-            )
-            text_input_ids = text_inputs.input_ids
-            untruncated_ids = self.tokenizer(prompt, padding="longest", return_tensors="pt").input_ids
-
-            if untruncated_ids.shape[-1] >= text_input_ids.shape[-1] and not torch.equal(
-                text_input_ids, untruncated_ids
-            ):
-                removed_text = self.tokenizer.batch_decode(untruncated_ids[:, max_length - 1 : -1])
-                logger.warning(
-                    "The following part of your input was truncated because CLIP can only handle sequences up to"
-                    f" {max_length} tokens: {removed_text}"
-                )
-
-            prompt_attention_mask = text_inputs.attention_mask
-            prompt_attention_mask = prompt_attention_mask.to(device)
-
-            prompt_embeds = self.text_encoder(text_input_ids.to(device), attention_mask=prompt_attention_mask)
-            prompt_embeds = prompt_embeds[0]
-
-        if self.text_encoder is not None:
-            dtype = self.text_encoder.dtype
-        elif self.transformer is not None:
-            dtype = self.transformer.dtype
-        else:
-            dtype = None
-
-        prompt_embeds = prompt_embeds.to(dtype=dtype, device=device)
-
-        bs_embed, seq_len, _ = prompt_embeds.shape
-        # duplicate text embeddings and attention mask for each generation per prompt, using mps friendly method
-        prompt_embeds = prompt_embeds.repeat(1, num_images_per_prompt, 1)
-        prompt_embeds = prompt_embeds.view(bs_embed * num_images_per_prompt, seq_len, -1)
-        prompt_attention_mask = prompt_attention_mask.view(bs_embed, -1)
-        prompt_attention_mask = prompt_attention_mask.repeat(num_images_per_prompt, 1)
-
-        # get unconditional embeddings for classifier free guidance
-        if do_classifier_free_guidance and negative_prompt_embeds is None:
-            uncond_tokens = [negative_prompt] * batch_size
-            uncond_tokens = self._text_preprocessing(uncond_tokens, clean_caption=clean_caption)
-            max_length = prompt_embeds.shape[1]
-            uncond_input = self.tokenizer(
-                uncond_tokens,
-                padding="max_length",
-                max_length=max_length,
-                truncation=True,
-                return_attention_mask=True,
-                add_special_tokens=True,
-                return_tensors="pt",
-            )
-            negative_prompt_attention_mask = uncond_input.attention_mask
-            negative_prompt_attention_mask = negative_prompt_attention_mask.to(device)
-
-            negative_prompt_embeds = self.text_encoder(
-                uncond_input.input_ids.to(device), attention_mask=negative_prompt_attention_mask
-            )
-            negative_prompt_embeds = negative_prompt_embeds[0]
-
-        if do_classifier_free_guidance:
-            # duplicate unconditional embeddings for each generation per prompt, using mps friendly method
-            seq_len = negative_prompt_embeds.shape[1]
-
-            negative_prompt_embeds = negative_prompt_embeds.to(dtype=dtype, device=device)
-
-            negative_prompt_embeds = negative_prompt_embeds.repeat(1, num_images_per_prompt, 1)
-            negative_prompt_embeds = negative_prompt_embeds.view(batch_size * num_images_per_prompt, seq_len, -1)
-
-            negative_prompt_attention_mask = negative_prompt_attention_mask.view(bs_embed, -1)
-            negative_prompt_attention_mask = negative_prompt_attention_mask.repeat(num_images_per_prompt, 1)
-        else:
-            negative_prompt_embeds = None
-            negative_prompt_attention_mask = None
-
-        return prompt_embeds, prompt_attention_mask, negative_prompt_embeds, negative_prompt_attention_mask
 
     # Copied from diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion.StableDiffusionPipeline.prepare_extra_step_kwargs
     def prepare_extra_step_kwargs(self, generator, eta):
@@ -699,8 +471,6 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
         callback_steps,
         prompt_embeds=None,
         negative_prompt_embeds=None,
-        prompt_attention_mask=None,
-        negative_prompt_attention_mask=None,
     ):
         if height % 8 != 0 or width % 8 != 0:
             raise ValueError(f"`height` and `width` have to be divisible by 8 but are {height} and {width}.")
@@ -744,12 +514,6 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
                     f" got: `prompt_embeds` {prompt_embeds.shape} != `negative_prompt_embeds`"
                     f" {negative_prompt_embeds.shape}."
                 )
-            if prompt_attention_mask.shape != negative_prompt_attention_mask.shape:
-                raise ValueError(
-                    "`prompt_attention_mask` and `negative_prompt_attention_mask` must have the same shape when passed directly, but"
-                    f" got: `prompt_attention_mask` {prompt_attention_mask.shape} != `negative_prompt_attention_mask`"
-                    f" {negative_prompt_attention_mask.shape}."
-                )
 
     # Copied from diffusers.pipelines.deepfloyd_if.pipeline_if.IFPipeline._text_preprocessing
     def _text_preprocessing(self, text, clean_caption=False):
@@ -774,14 +538,12 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
         caption = re.sub("<person>", "person", caption)
         # urls:
         caption = re.sub(
-            r"\b((?:https?:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))",
-            # noqa
+            r"\b((?:https?:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))",  # noqa
             "",
             caption,
         )  # regex for urls
         caption = re.sub(
-            r"\b((?:www:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))",
-            # noqa
+            r"\b((?:www:(?:\/{1,3}|[a-zA-Z0-9%])|[a-zA-Z0-9.\-]+[.](?:com|co|ru|net|org|edu|gov|it)[\w/-]*\b\/?(?!@)))",  # noqa
             "",
             caption,
         )  # regex for urls
@@ -809,8 +571,7 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
 
         # все виды тире / all types of dash --> "-"
         caption = re.sub(
-            r"[\u002D\u058A\u05BE\u1400\u1806\u2010-\u2015\u2E17\u2E1A\u2E3A\u2E3B\u2E40\u301C\u3030\u30A0\uFE31\uFE32\uFE58\uFE63\uFF0D]+",
-            # noqa
+            r"[\u002D\u058A\u05BE\u1400\u1806\u2010-\u2015\u2E17\u2E1A\u2E3A\u2E3B\u2E40\u301C\u3030\u30A0\uFE31\uFE32\uFE58\uFE63\uFF0D]+",  # noqa
             "-",
             caption,
         )
@@ -886,17 +647,20 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
 
     # Copied from diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion.StableDiffusionPipeline.prepare_latents
     def prepare_latents(
-        self, batch_size, num_channels_latents, num_frames, height, width, dtype, device, generator, latents=None
+        self, batch_size, num_channels_latents, video_length, height, width, dtype, device, generator, latents=None
     ):
         shape = (
             batch_size,
             num_channels_latents,
-            (math.ceil((int(num_frames) - 1) / self.vae.vae_scale_factor[0]) + 1)
-            if int(num_frames) % 2 == 1
-            else math.ceil(int(num_frames) / self.vae.vae_scale_factor[0]),
-            math.ceil(int(height) / self.vae.vae_scale_factor[1]),
-            math.ceil(int(width) / self.vae.vae_scale_factor[2]),
+            video_length,
+            height // self.vae_scale_factor,
+            width // self.vae_scale_factor,
         )
+        if isinstance(generator, list) and len(generator) != batch_size:
+            raise ValueError(
+                f"You have passed a list of generators of length {len(generator)}, but requested an effective batch"
+                f" size of {batch_size}. Make sure the batch size matches the length of the generators."
+            )
 
         if latents is None:
             latents = randn_tensor(shape, generator=generator, device=device, dtype=dtype)
@@ -910,19 +674,17 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
     @torch.no_grad()
     def generate(
         self,
-        prompt: Union[str, List[str]] = None,
+        prompt: str = None,
         negative_prompt: str = "",
-        num_inference_steps: int = 150,
+        num_inference_steps: int = 50,
         guidance_scale: float = 7.5,
+        seed: int = -1,
         num_images_per_prompt: Optional[int] = 1,
         eta: float = 0.0,
-        seed: int = -1,
         generator: Optional[Union[torch.Generator, List[torch.Generator]]] = None,
         latents: Optional[torch.FloatTensor] = None,
         prompt_embeds: Optional[torch.FloatTensor] = None,
-        prompt_attention_mask: Optional[torch.FloatTensor] = None,
         negative_prompt_embeds: Optional[torch.FloatTensor] = None,
-        negative_prompt_attention_mask: Optional[torch.FloatTensor] = None,
         output_type: Optional[str] = "pil",
         return_dict: bool = True,
         callback: Optional[Callable[[int, int, torch.FloatTensor], None]] = None,
@@ -931,10 +693,11 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
         mask_feature: bool = True,
         enable_temporal_attentions: bool = True,
         verbose: bool = True,
-        max_sequence_length: int = 512,
     ) -> Union[VideoSysPipelineOutput, Tuple]:
         """
         Function invoked when calling the pipeline for generation.
+
+        Latte can only generate video of 16 frames 512x512.
 
         Args:
             prompt (`str` or `List[str]`, *optional*):
@@ -958,13 +721,6 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
                 usually at the expense of lower image quality.
             num_images_per_prompt (`int`, *optional*, defaults to 1):
                 The number of images to generate per prompt.
-            height (`int`, *optional*, defaults to self.unet.config.sample_size):
-                The height in pixels of the generated image.
-            width (`int`, *optional*, defaults to self.unet.config.sample_size):
-                The width in pixels of the generated image.
-            eta (`float`, *optional*, defaults to 0.0):
-                Corresponds to parameter eta (η) in the DDIM paper: https://arxiv.org/abs/2010.02502. Only applies to
-                [`schedulers.DDIMScheduler`], will be ignored for others.
             generator (`torch.Generator` or `List[torch.Generator]`, *optional*):
                 One or a list of [torch generator(s)](https://pytorch.org/docs/stable/generated/torch.Generator.html)
                 to make generation deterministic.
@@ -994,8 +750,10 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
                 be installed. If the dependencies are not installed, the embeddings will be created from the raw
                 prompt.
             mask_feature (`bool` defaults to `True`): If set to `True`, the text embeddings will be masked.
-
-        Examples:
+            enable_temporal_attentions (`bool`, defaults to `True`):
+                If `True`, the model will use temporal attentions to generate the video.
+            verbose (`bool`, *optional*, defaults to `True`):
+                Whether to print progress bars and other information during inference.
 
         Returns:
             [`~pipelines.ImagePipelineOutput`] or `tuple`:
@@ -1003,21 +761,11 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
                 returned where the first element is a list with the generated images
         """
         # 1. Check inputs. Raise error if not correct
-        height = self.transformer.config.sample_size[0] * self.vae.vae_scale_factor[1]
-        width = self.transformer.config.sample_size[1] * self.vae.vae_scale_factor[2]
-        num_frames = self._config.num_frames
+        video_length = 16
+        height = 512
+        width = 512
         update_steps(num_inference_steps)
-        self.check_inputs(
-            prompt,
-            height,
-            width,
-            negative_prompt,
-            callback_steps,
-            prompt_embeds,
-            negative_prompt_embeds,
-            prompt_attention_mask,
-            negative_prompt_attention_mask,
-        )
+        self.check_inputs(prompt, height, width, negative_prompt, callback_steps, prompt_embeds, negative_prompt_embeds)
         self._set_seed(seed)
 
         # 2. Default height and width to transformer
@@ -1028,7 +776,7 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
         else:
             batch_size = prompt_embeds.shape[0]
 
-        device = getattr(self, "_execution_device", None) or getattr(self, "device", None) or torch.device("cuda")
+        device = self._execution_device
 
         # here `guidance_scale` is defined analog to the guidance weight `w` of equation (2)
         # of the Imagen paper: https://arxiv.org/pdf/2205.11487.pdf . `guidance_scale = 1`
@@ -1036,57 +784,30 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
         do_classifier_free_guidance = guidance_scale > 1.0
 
         # 3. Encode input prompt
-        if self._config.version == "v110":
-            prompt_embeds, negative_prompt_embeds = self.encode_prompt(
-                prompt,
-                do_classifier_free_guidance,
-                negative_prompt=negative_prompt,
-                num_images_per_prompt=num_images_per_prompt,
-                device=device,
-                prompt_embeds=prompt_embeds,
-                negative_prompt_embeds=negative_prompt_embeds,
-                clean_caption=clean_caption,
-                mask_feature=mask_feature,
-            )
-            prompt_attention_mask = None
-            negative_prompt_attention_mask = None
-        else:
-            (
-                prompt_embeds,
-                prompt_attention_mask,
-                negative_prompt_embeds,
-                negative_prompt_attention_mask,
-            ) = self.encode_prompt_v120(
-                prompt,
-                do_classifier_free_guidance,
-                negative_prompt=negative_prompt,
-                num_images_per_prompt=num_images_per_prompt,
-                device=device,
-                prompt_embeds=prompt_embeds,
-                negative_prompt_embeds=negative_prompt_embeds,
-                prompt_attention_mask=prompt_attention_mask,
-                negative_prompt_attention_mask=negative_prompt_attention_mask,
-                clean_caption=clean_caption,
-                max_sequence_length=max_sequence_length,
-            )
+        prompt_embeds, negative_prompt_embeds = self.encode_prompt(
+            prompt,
+            do_classifier_free_guidance,
+            negative_prompt=negative_prompt,
+            num_images_per_prompt=num_images_per_prompt,
+            device=device,
+            prompt_embeds=prompt_embeds,
+            negative_prompt_embeds=negative_prompt_embeds,
+            clean_caption=clean_caption,
+            mask_feature=mask_feature,
+        )
         if do_classifier_free_guidance:
             prompt_embeds = torch.cat([negative_prompt_embeds, prompt_embeds], dim=0)
-            if prompt_attention_mask is not None and negative_prompt_attention_mask is not None:
-                prompt_attention_mask = torch.cat([negative_prompt_attention_mask, prompt_attention_mask], dim=0)
 
         # 4. Prepare timesteps
-        if self._config.version == "v110":
-            self.scheduler.set_timesteps(num_inference_steps, device=device)
-            timesteps = self.scheduler.timesteps
-        else:
-            timesteps, num_inference_steps = retrieve_timesteps(self.scheduler, num_inference_steps, device, None)
+        self.scheduler.set_timesteps(num_inference_steps, device=device)
+        timesteps = self.scheduler.timesteps
 
         # 5. Prepare latents.
         latent_channels = self.transformer.config.in_channels
         latents = self.prepare_latents(
             batch_size * num_images_per_prompt,
             latent_channels,
-            num_frames,
+            video_length,
             height,
             width,
             prompt_embeds.dtype,
@@ -1095,13 +816,21 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
             latents,
         )
 
-        # 6. Prepare extra step kwargs. TODO: Logic should ideally just be moved out of the pipeline
+        # 6. Prepare extra step kwargs.
         extra_step_kwargs = self.prepare_extra_step_kwargs(generator, eta)
 
         # 6.1 Prepare micro-conditions.
         added_cond_kwargs = {"resolution": None, "aspect_ratio": None}
+        if self.transformer.config.sample_size == 128:
+            resolution = torch.tensor([height, width]).repeat(batch_size * num_images_per_prompt, 1)
+            aspect_ratio = torch.tensor([float(height / width)]).repeat(batch_size * num_images_per_prompt, 1)
+            resolution = resolution.to(dtype=prompt_embeds.dtype, device=device)
+            aspect_ratio = aspect_ratio.to(dtype=prompt_embeds.dtype, device=device)
+            added_cond_kwargs = {"resolution": resolution, "aspect_ratio": aspect_ratio}
 
-        # 7. Denoising loop
+        # 7. Denoising loop. Each iteration predicts the current noise/residual
+        # and updates the latent state, which is the sampling path accelerated
+        # by feature/residual caching methods such as NaviCache.
         num_warmup_steps = max(len(timesteps) - num_inference_steps * self.scheduler.order, 0)
 
         progress_wrap = tqdm.tqdm if verbose and dist.get_rank() == 0 else (lambda x: x)
@@ -1111,7 +840,6 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
 
             current_timestep = t
             if not torch.is_tensor(current_timestep):
-                # TODO: this requires sync between CPU and GPU. So try to pass timesteps as tensors if you can
                 # This would be a good case for the `match` statement (Python 3.10+)
                 is_mps = latent_model_input.device.type == "mps"
                 if isinstance(current_timestep, float):
@@ -1124,15 +852,6 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
             # broadcast to batch dimension in a way that's compatible with ONNX/Core ML
             current_timestep = current_timestep.expand(latent_model_input.shape[0])
 
-            if prompt_embeds is not None and prompt_embeds.ndim == 3:
-                prompt_embeds = prompt_embeds.unsqueeze(1)  # b l d -> b 1 l d
-
-            if prompt_attention_mask is not None and prompt_attention_mask.ndim == 2:
-                prompt_attention_mask = prompt_attention_mask.unsqueeze(1)  # b l -> b 1 l
-            # prepare attention_mask.
-            # b c t h w -> b t h w
-            attention_mask = torch.ones_like(latent_model_input)[:, 0]
-
             # predict noise model_output
             noise_pred = self.transformer(
                 latent_model_input,
@@ -1141,8 +860,6 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
                 timestep=current_timestep,
                 added_cond_kwargs=added_cond_kwargs,
                 enable_temporal_attentions=enable_temporal_attentions,
-                attention_mask=attention_mask,
-                encoder_attention_mask=prompt_attention_mask,
                 return_dict=False,
             )[0]
 
@@ -1167,8 +884,13 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
                     callback(step_idx, t, latents)
 
         if not output_type == "latents":
-            video = self.decode_latents(latents)
-            video = video[:, :num_frames, :height, :width]
+            if latents.shape[2] == 1:  # image
+                video = self.decode_latents_image(latents)
+            else:  # video
+                if self._config.enable_vae_temporal_decoder:
+                    video = self.decode_latents_with_temporal_decoder(latents)
+                else:
+                    video = self.decode_latents(latents)
         else:
             video = latents
             return VideoSysPipelineOutput(video=video)
@@ -1181,58 +903,51 @@ class OpenSoraPlanPipeline(VideoSysPipeline):
 
         return VideoSysPipelineOutput(video=video)
 
+    def decode_latents_image(self, latents):
+        video_length = latents.shape[2]
+        latents = 1 / self.vae.config.scaling_factor * latents
+        latents = einops.rearrange(latents, "b c f h w -> (b f) c h w")
+        video = []
+        for frame_idx in range(latents.shape[0]):
+            video.append(self.vae.decode(latents[frame_idx : frame_idx + 1]).sample)
+        video = torch.cat(video)
+        video = einops.rearrange(video, "(b f) c h w -> b f c h w", f=video_length)
+        video = (video / 2.0 + 0.5).clamp(0, 1)
+        return video
+
     def decode_latents(self, latents):
-        video = self.vae(latents.to(self.vae.vae.dtype))
-        video = (
-            ((video / 2.0 + 0.5).clamp(0, 1) * 255).to(dtype=torch.uint8).cpu().permute(0, 1, 3, 4, 2).contiguous()
-        )  # b t h w c
+        video_length = latents.shape[2]
+        latents = 1 / self.vae.config.scaling_factor * latents
+        latents = einops.rearrange(latents, "b c f h w -> (b f) c h w")
+        video = []
+        for frame_idx in range(latents.shape[0]):
+            video.append(self.vae.decode(latents[frame_idx : frame_idx + 1]).sample)
+        video = torch.cat(video)
+        video = einops.rearrange(video, "(b f) c h w -> b f h w c", f=video_length)
+        video = ((video / 2.0 + 0.5).clamp(0, 1) * 255).to(dtype=torch.uint8).cpu().contiguous()
+        # we always cast to float32 as this does not cause significant overhead and is compatible with bfloa16
+        return video
+
+    def decode_latents_with_temporal_decoder(self, latents):
+        video_length = latents.shape[2]
+        latents = 1 / self.vae.config.scaling_factor * latents
+        latents = einops.rearrange(latents, "b c f h w -> (b f) c h w")
+        video = []
+
+        decode_chunk_size = 14
+        for frame_idx in range(0, latents.shape[0], decode_chunk_size):
+            num_frames_in = latents[frame_idx : frame_idx + decode_chunk_size].shape[0]
+
+            decode_kwargs = {}
+            decode_kwargs["num_frames"] = num_frames_in
+
+            video.append(self.vae.decode(latents[frame_idx : frame_idx + decode_chunk_size], **decode_kwargs).sample)
+
+        video = torch.cat(video)
+        video = einops.rearrange(video, "(b f) c h w -> b f h w c", f=video_length)
+        video = ((video / 2.0 + 0.5).clamp(0, 1) * 255).to(dtype=torch.uint8).cpu().contiguous()
         # we always cast to float32 as this does not cause significant overhead and is compatible with bfloa16
         return video
 
     def save_video(self, video, output_path):
-        save_video(video, output_path, fps=24)
-
-
-# Copied from diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion.retrieve_timesteps
-def retrieve_timesteps(
-    scheduler,
-    num_inference_steps: Optional[int] = None,
-    device: Optional[Union[str, torch.device]] = None,
-    timesteps: Optional[List[int]] = None,
-    **kwargs,
-):
-    """
-    Calls the scheduler's `set_timesteps` method and retrieves timesteps from the scheduler after the call. Handles
-    custom timesteps. Any kwargs will be supplied to `scheduler.set_timesteps`.
-
-    Args:
-        scheduler (`SchedulerMixin`):
-            The scheduler to get timesteps from.
-        num_inference_steps (`int`):
-            The number of diffusion steps used when generating samples with a pre-trained model. If used, `timesteps`
-            must be `None`.
-        device (`str` or `torch.device`, *optional*):
-            The device to which the timesteps should be moved to. If `None`, the timesteps are not moved.
-        timesteps (`List[int]`, *optional*):
-                Custom timesteps used to support arbitrary spacing between timesteps. If `None`, then the default
-                timestep spacing strategy of the scheduler is used. If `timesteps` is passed, `num_inference_steps`
-                must be `None`.
-
-    Returns:
-        `Tuple[torch.Tensor, int]`: A tuple where the first element is the timestep schedule from the scheduler and the
-        second element is the number of inference steps.
-    """
-    if timesteps is not None:
-        accepts_timesteps = "timesteps" in set(inspect.signature(scheduler.set_timesteps).parameters.keys())
-        if not accepts_timesteps:
-            raise ValueError(
-                f"The current scheduler class {scheduler.__class__}'s `set_timesteps` does not support custom"
-                f" timestep schedules. Please check whether you are using the correct scheduler."
-            )
-        scheduler.set_timesteps(timesteps=timesteps, device=device, **kwargs)
-        timesteps = scheduler.timesteps
-        num_inference_steps = len(timesteps)
-    else:
-        scheduler.set_timesteps(num_inference_steps, device=device, **kwargs)
-        timesteps = scheduler.timesteps
-    return timesteps, num_inference_steps
+        save_video(video, output_path, fps=8)

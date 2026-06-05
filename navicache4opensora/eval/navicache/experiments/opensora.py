@@ -102,6 +102,8 @@ def navicache_forward(
     x = rearrange(x, "B T S C -> B (T S) C", T=T, S=S)
     raw_input = x.clone()
 
+    # Compute early alignment and the final denoising step exactly. The
+    # intermediate steps can reuse cached residuals only after calibration.
     if self.navicache_step < self.navicache_align_steps or self.navicache_step >= self.navicache_num_steps - 1:
         should_compute = True
         self.navicache_accumulated_error = 0
@@ -114,6 +116,8 @@ def navicache_forward(
         ):
             raw_input_change = (raw_input - self.navicache_previous_raw_input).abs().mean()
 
+            # Predict transformer-output drift from latent drift through the
+            # self-calibrated state ratio estimated on exact steps.
             if hasattr(self, "navicache_state_ratio") and self.navicache_state_ratio is not None:
                 self.navicache_prediction_ratio = self.navicache_state_ratio
 
@@ -135,6 +139,8 @@ def navicache_forward(
     self.navicache_previous_raw_input = raw_input.clone()
 
     if not should_compute and self.navicache_residual is not None:
+        # Residual reuse is the acceleration path: skip spatial/temporal blocks
+        # when accumulated predicted drift is below the NaviCache threshold.
         x = raw_input + self.navicache_residual
         self.navicache_skipped_steps += 1
     else:
@@ -175,6 +181,8 @@ def navicache_forward(
                 z = output_change / (input_change + 1e-8)
                 is_warmup = self.navicache_step < self.navicache_align_steps
 
+                # Online self-calibration updates the drift ratio with a
+                # lightweight Kalman-style fusion between prediction and measurement.
                 if self.navicache_state_ratio is None or is_warmup:
                     self.navicache_state_ratio = z
                     self.navicache_uncertainty = 1.0
@@ -230,6 +238,7 @@ def configure_navicache(
     navicache_process_noise=0.05,
     navicache_measurement_noise=0.05,
 ):
+    """Patch an Open-Sora transformer with NaviCache runtime state."""
     transformer_class = transformer.__class__
     transformer_class.forward = navicache_forward
     transformer_class.enable_navicache = True

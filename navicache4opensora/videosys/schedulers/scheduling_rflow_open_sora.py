@@ -221,6 +221,8 @@ class RFLOW:
         dtype = model.x_embedder.proj.weight.dtype
         all_timesteps = [int(t.to(dtype).item()) for t in timesteps]
         for i, t in progress_wrap(list(enumerate(timesteps))):
+            # RFLOW performs one denoising update per timestep. Caching methods
+            # can accelerate this loop by reusing stable transformer residuals.
             # mask for adding noise
             if mask is not None:
                 mask_t = mask * self.num_timesteps

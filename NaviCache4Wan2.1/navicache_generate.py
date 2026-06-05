@@ -481,6 +481,8 @@ def navicache_forward(
 
     if self.navicache_is_cond_forward:
 
+        # The first alignment steps and the final denoising pair are evaluated
+        # exactly, so the cache is calibrated before reuse and reset near output.
         if self.navicache_forward_count < self.navicache_align_forwards or self.navicache_forward_count >= self.navicache_cutoff_forwards:
             self.navicache_should_compute_pair = True
             self.navicache_accumulated_error = 0
@@ -493,6 +495,8 @@ def navicache_forward(
                     (u - v).flatten() for u, v in zip(raw_input, self.navicache_previous_raw_cond_input)
                 ]).abs().mean()
 
+                # Estimate the next output drift from the observed latent drift.
+                # The state ratio is self-calibrated on exact conditional passes.
                 if hasattr(self, 'navicache_state_ratio') and self.navicache_state_ratio is not None:
 
                     self.navicache_prediction_ratio = self.navicache_state_ratio
@@ -527,6 +531,8 @@ def navicache_forward(
     if self.navicache_is_cond_forward and not self.navicache_should_compute_pair and\
             hasattr(self, 'navicache_previous_raw_cond_output') and self.navicache_previous_raw_cond_output is not None:
 
+        # Reuse the cached conditional residual for this CFG pair when the
+        # accumulated predicted drift stays under the NaviCache threshold.
         self.navicache_forward_count += 1
         if self.navicache_forward_count >= self.navicache_num_forwards: self.navicache_forward_count = 0
 
@@ -535,6 +541,8 @@ def navicache_forward(
     elif not self.navicache_is_cond_forward and not self.navicache_should_compute_pair and\
             hasattr(self, 'navicache_previous_raw_uncond_output') and self.navicache_previous_raw_uncond_output is not None:
 
+        # The unconditional branch follows the same pair-level reuse decision
+        # made on the preceding conditional branch.
         self.navicache_forward_count += 1
         if self.navicache_forward_count >= self.navicache_num_forwards: self.navicache_forward_count = 0
 
@@ -587,6 +595,8 @@ def navicache_forward(
 
         if hasattr(self, 'navicache_previous_raw_cond_output') and self.navicache_previous_raw_cond_output is not None:
 
+            # Exact conditional passes provide measurements for the online
+            # self-calibration update used in later skip decisions.
             output_change = torch.cat([
                 (u - v).flatten() for u, v in zip(output, self.navicache_previous_raw_cond_output)
             ]).abs().mean()
