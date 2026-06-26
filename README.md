@@ -2,11 +2,8 @@
 
 
 [![OpenReview](https://img.shields.io/badge/OpenReview-ICML%202026-red)](https://openreview.net/forum?id=SFiwuSvDhs)
-
 [![arXiv](https://img.shields.io/badge/arXiv-2606.26795-b31b1b?logo=arxiv)](https://arxiv.org/abs/2606.26795)
-
 [![Code](https://img.shields.io/badge/Code-Available-green?logo=github)](#)
-
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 
