@@ -81,12 +81,12 @@ python navicache_generate.py \
 
 ### Inference Latency Comparison
 
-| Wan2.1 configuration (92 prompts) | Resolution | Wan2.1 | NaviCache | Speedup |
-|:----------------------------------|:----------:|:------:|:---------:|:-------:|
-| T2V 1.3B | 832x480 | 488.0 s | 160.1 s | 3.05x |
-| T2V 14B | 1280x720 | 3528.1 s | 1361.1 s | 2.59x |
-| I2V 14B 480P | 832x480 | 825.9 s | 481.4 s | 1.72x |
-| I2V 14B 720P | 1280x720 | 1887.2 s | 1007.9 s | 1.87x |
+| Wan2.1 configuration | Resolution | Wan2.1 (92 prompts) | TeaCache (8-prompt estimate) | NaviCache (92 prompts) | NaviCache speedup |
+|:---------------------|:----------:|:-------------------:|:----------------------------:|:----------------------:|:-----------------:|
+| T2V 1.3B | 832x480 | 488.0 s | 209.5 s | 160.1 s | 3.05x |
+| T2V 14B | 1280x720 | 3528.1 s | 1784.2 s | 1361.1 s | 2.59x |
+| I2V 14B 480P | 832x480 | 825.9 s | 604.4 s | 481.4 s | 1.72x |
+| I2V 14B 720P | 1280x720 | 1887.2 s | 1296.2 s | 1007.9 s | 1.87x |
 
 ### Visual Quality Comparison
 
@@ -98,7 +98,7 @@ python navicache_generate.py \
 
 | Wan2.1 | TeaCache | NaviCache |
 |:------:|:--------:|:---------:|
-| 488.0 s (1.00x) | Visual reference | **160.1 s (3.05x)** |
+| 488.0 s | 209.5 s | **160.1 s (3.05x)** |
 
 <details>
 <summary>Prompt: A boat sailing leisurely along the Seine River with the Eiffel Tower in background, zoom out</summary>
@@ -115,7 +115,7 @@ A boat sailing leisurely along the Seine River with the Eiffel Tower in backgrou
 
 | Wan2.1 | TeaCache | NaviCache |
 |:------:|:--------:|:---------:|
-| 3528.1 s (1.00x) | Visual reference | **1361.1 s (2.59x)** |
+| 3528.1 s | 1784.2 s | **1361.1 s (2.59x)** |
 
 <details>
 <summary>Prompt: A person is skateboarding</summary>
@@ -127,13 +127,12 @@ A person is skateboarding
 #### I2V 14B, 832x480
 
 <div align="center">
-  <video src="../assets/wan21_comparison/i2v14b480_ribbon_dancer_comparison.mp4" width="960" controls muted loop></video>
+  <video src="../assets/wan21_comparison/i2v14b480_ribbon_dancer_comparison.mp4" width="936" controls muted loop></video>
 </div>
 
-| Method | Showcase latency | Speedup vs TeaCache |
-|:-------|:----------------:|:-------------------:|
-| TeaCache | 678.4 s | 1.00x |
-| NaviCache | **578.2 s** | **1.17x** |
+| Wan2.1 | TeaCache | NaviCache |
+|:------:|:--------:|:---------:|
+| 825.9 s | 604.4 s | **481.4 s (1.72x)** |
 
 <details>
 <summary>Prompt</summary>
@@ -148,10 +147,9 @@ The ribbon dancer spins rapidly across the courtyard, both red silk ribbons trac
   <video src="../assets/wan21_comparison/i2v14b720_clockwork_hummingbird_comparison.mp4" width="960" controls muted loop></video>
 </div>
 
-| Method | Showcase latency | Speedup vs TeaCache |
-|:-------|:----------------:|:-------------------:|
-| TeaCache | 1343.5 s | 1.00x |
-| NaviCache | **1167.8 s** | **1.15x** |
+| Wan2.1 | TeaCache | NaviCache |
+|:------:|:--------:|:---------:|
+| 1887.2 s | 1296.2 s | **1007.9 s (1.87x)** |
 
 <details>
 <summary>Prompt</summary>
