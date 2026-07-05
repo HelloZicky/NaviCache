@@ -233,3 +233,7 @@ time_cost.json
 costtime.json
 batch_eval.txt
 *.log
+
+# README comparison assets intentionally included in the PR
+!assets/wan21_comparison/
+!assets/wan21_comparison/*.mp4
