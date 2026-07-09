@@ -81,7 +81,7 @@ python navicache_generate.py \
 
 ### Inference Latency Comparison
 
-| Wan2.1 configuration | Resolution | Wan2.1 (92 prompts) | TeaCache (8-prompt estimate) | TeaCache speedup | NaviCache (92 prompts) | NaviCache speedup |
+| Wan2.1 configuration | Resolution | Wan2.1 | TeaCache | TeaCache speedup | NaviCache | NaviCache speedup |
 |:---------------------|:----------:|:-------------------:|:----------------------------:|:----------------:|:----------------------:|:-----------------:|
 | T2V 1.3B | 832x480 | 488.0 s | 209.5 s | 2.33x | 160.1 s | 3.05x |
 | T2V 14B | 1280x720 | 3528.1 s | 1784.2 s | 1.98x | 1361.1 s | 2.59x |
