@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#080b0a" />
+  <title>NaviCache — Data-driven X Demo</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="stage" aria-label="NaviCache animated research demo">
+    <div class="ambient" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+
+    <header class="masthead">
+      <a class="brand" href="https://github.com/HelloZicky/NaviCache" target="_blank" rel="noreferrer">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>NAVICACHE</span>
+      </a>
+      <div class="chapter" aria-live="polite"><b id="chapter-index">01</b><span id="chapter-name">TRACK THE MANIFOLD</span></div>
+      <div class="lab-lockup" aria-label="AI4GC laboratory">
+        <img src="assets/AI4GC.png" alt="AI4GC laboratory logo" />
+      </div>
+    </header>
+
+    <div class="global-progress" aria-hidden="true"><i id="global-progress-fill"></i></div>
+
+    <section class="scene scene-trajectory is-active" data-scene="trajectory" aria-labelledby="trajectory-title">
+      <div class="scene-title">
+        <p><span>01</span> TEST-TIME OBSERVATION</p>
+        <h1 id="trajectory-title">THE TRAJECTORY<br /><em>DOESN'T STAND STILL.</em></h1>
+        <div class="data-note"><i></i><span id="data-status">LOADING CSV</span></div>
+      </div>
+
+      <div class="charts" aria-label="Trajectory prediction comparison">
+        <article class="chart-card" data-method="raw">
+          <header><span>GROUND TRUTH</span><b>RAW POINTS</b></header>
+          <svg viewBox="0 0 360 264" role="img" aria-label="Raw input-output difference trajectory"></svg>
+          <footer><span>REFERENCE</span><strong>29 STEPS</strong></footer>
+        </article>
+        <article class="chart-card tea" data-method="tea">
+          <header><span>OFFLINE FIT</span><b>TEACACHE</b></header>
+          <svg viewBox="0 0 360 264" role="img" aria-label="TeaCache prediction and deviation"></svg>
+          <footer><span>MAE ↓</span><strong>0.0415</strong></footer>
+        </article>
+        <article class="chart-card easy" data-method="easy">
+          <header><span>ZERO-ORDER HOLD</span><b>EASYCACHE</b></header>
+          <svg viewBox="0 0 360 264" role="img" aria-label="EasyCache prediction and deviation"></svg>
+          <footer><span>MAE ↓</span><strong>0.0197</strong></footer>
+        </article>
+        <article class="chart-card navi" data-method="navi">
+          <header><span>SELF-CALIBRATION</span><b>NAVICACHE</b></header>
+          <svg viewBox="0 0 360 264" role="img" aria-label="NaviCache prediction closely tracking the raw trajectory"></svg>
+          <footer><span>MAE ↓</span><strong>0.0164</strong></footer>
+        </article>
+      </div>
+
+      <aside class="trajectory-caption">
+        <p>Input difference <span>ΔI</span> does not map to one fixed output difference <span>ΔO</span>.</p>
+        <div><i class="ref"></i> RAW REFERENCE <i class="estimate"></i> PREDICTION <i class="error"></i> DEVIATION</div>
+      </aside>
+    </section>
+
+    <section class="scene scene-decision" data-scene="decision" aria-labelledby="decision-title">
+      <div class="scene-title compact">
+        <p><span>02</span> THE DECISION ENGINE</p>
+        <h1 id="decision-title">COMPUTE ONLY<br /><em>WHEN UNCERTAIN.</em></h1>
+        <p class="lede">A dual-state estimator tracks feature change and its uncertainty, then makes one bounded decision at every denoising step.</p>
+      </div>
+
+      <div class="decision-board">
+        <svg class="connector-layer" aria-hidden="true">
+          <path class="flow-path" data-link="align-predict"></path>
+          <path class="flow-path" data-link="predict-gate"></path>
+          <path class="flow-path branch-safe" data-link="gate-skip"></path>
+          <path class="flow-path branch-update" data-link="gate-update"></path>
+        </svg>
+        <i class="signal-token" aria-hidden="true"></i>
+
+        <article class="decision-node align-node">
+          <span>01 / INITIAL ALIGNMENT</span>
+          <strong>ANCHOR</strong>
+          <p>Full compute for <i>N</i><sub>align</sub> steps</p>
+          <code>measure ΔI, ΔO → init r̂₀, P₀</code>
+        </article>
+        <article class="decision-node predict-node">
+          <span>02 / PRIOR PROJECTION</span>
+          <strong>PREDICT</strong>
+          <p>Project ratio state + uncertainty</p>
+          <code>ΔÔₜ = r̂ₜ|ₜ₋₁ · ΔIₜ</code>
+        </article>
+        <article class="decision-node gate-node">
+          <span>03 / SAFETY GATE</span>
+          <strong>ε<sub>acc</sub> &lt; τ ?</strong>
+          <p>Accumulate predicted observation error</p>
+          <div class="gauge"><i id="gauge-fill"></i><b id="gauge-threshold"></b></div>
+          <div class="gauge-readout"><span>ε <b id="error-value">0.000</b></span><span>τ 0.070</span></div>
+        </article>
+        <article class="decision-node skip-node">
+          <span>SAFE</span><strong>SKIP</strong><p>Reuse cached feature</p>
+        </article>
+        <article class="decision-node update-node">
+          <span>BOUND EXCEEDED</span><strong>UPDATE</strong><p>Compute + rectify state</p>
+        </article>
+      </div>
+
+      <div class="decision-rail-wrap">
+        <div class="rail-label"><span>LIVE DENOISING TRACE</span><b id="decision-state">ALIGNMENT</b></div>
+        <div id="decision-rail" class="decision-rail" role="img" aria-label="Animated sequence of compute, skip, and update decisions"></div>
+        <div class="rail-legend"><span><i class="compute"></i> COMPUTE</span><span><i class="skip"></i> SKIP</span><span><i class="update"></i> UPDATE</span><span class="rail-step">STEP <b id="step-value">01</b> / 29</span></div>
+      </div>
+    </section>
+
+    <section class="scene scene-results" data-scene="results" aria-labelledby="results-title">
+      <div class="result-copy">
+        <p><span>03</span> THE RESULT</p>
+        <h1 id="results-title">SKIP COMPUTE.<br /><em>KEEP THE MOTION.</em></h1>
+        <p class="lede">No training. No offline calibration. One plug-and-play cache across video diffusion backbones.</p>
+      </div>
+
+      <div class="video-shell">
+        <div class="compare-pane tea-pane">
+          <video class="comparison-video slice-tea" muted loop playsinline preload="auto">
+            <source src="assets/hummingbird-comparison.mp4" type="video/mp4" />
+          </video>
+          <div class="pane-label"><b>TEACACHE</b><small>OFFLINE FIT</small></div>
+        </div>
+        <div class="compare-pane navi-pane">
+          <video class="comparison-video slice-navi" muted loop playsinline preload="auto">
+            <source src="assets/hummingbird-comparison.mp4" type="video/mp4" />
+          </video>
+          <div class="pane-label"><b>NAVICACHE</b><small>SELF-CALIBRATED</small></div>
+        </div>
+        <span class="versus" aria-hidden="true">VS</span>
+        <div class="video-meta">WAN 2.1 · I2V · 720P <span>HIGH-MOTION TEST</span></div>
+      </div>
+
+      <aside class="results-panel">
+        <div class="hero-metric"><span>UP TO</span><strong data-count="2.55">0.00<sup>×</sup></strong><b>FASTER</b></div>
+        <div class="backbone-bars">
+          <div><span>WAN 2.1</span><i><b data-bar="87"></b></i><strong>2.23×</strong></div>
+          <div><span>HUNYUANVIDEO</span><i><b data-bar="100"></b></i><strong>2.55×</strong></div>
+          <div><span>OPEN-SORA</span><i><b data-bar="70"></b></i><strong>1.78×</strong></div>
+        </div>
+        <div class="proof-grid">
+          <div><span>OFFLINE CALIBRATION</span><strong>0</strong></div>
+          <div><span>DECISION OVERHEAD</span><strong>0.0109<small>s</small></strong></div>
+          <div><span>BACKBONES</span><strong>3</strong></div>
+        </div>
+      </aside>
+    </section>
+
+    <nav class="scene-nav" aria-label="Demo chapters">
+      <button type="button" data-goto="trajectory" class="active"><b>01</b><span>TRAJECTORY</span></button>
+      <button type="button" data-goto="decision"><b>02</b><span>DECISION</span></button>
+      <button type="button" data-goto="results"><b>03</b><span>RESULT</span></button>
+    </nav>
+    <button id="motion-toggle" class="motion-toggle" type="button" aria-pressed="false"><i></i><span>PAUSE</span></button>
+    <p class="paper-title">NaviCache: Test-Time Self-Calibration Caching for Video Generation</p>
+  </main>
+
+  <script src="assets/gsap.min.js"></script>
+  <script src="demo.js"></script>
+</body>
+</html>
