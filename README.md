@@ -12,7 +12,7 @@ This is the official repository for **NaviCache: Test-Time Self-Calibration Cach
 
 - **No offline calibration**: no calibration datasets, pre-processing, or per-model fitting.
 - **Test-time self-calibration**: the cache updates its feature-change estimator during inference.
-- **Plug-and-play acceleration**: lightweight integration for Wan2.1, HunyuanVideo, and Open-Sora.
+- **Plug-and-play acceleration**: lightweight integration for Wan2.1, Wan2.2, HunyuanVideo, and Open-Sora.
 - **Adaptive computation allocation**: skip/update decisions are controlled by an uncertainty-aware gate.
 - **Strong speed-quality trade-off**: multiple presets are provided for fast, mid, and slow modes.
 
@@ -106,6 +106,7 @@ For easier preview and quick visual comparison, we also provide clickable GIF pr
 | Model | Task | NaviCache entry point | Example scripts |
 |---|---|---|---|
 | Wan2.1 | Text-to-Video / Image-to-Video | `NaviCache4Wan2.1/navicache_generate.py` | `scripts/wan/` |
+| Wan2.2-TI2V-5B | Text-to-Video / Image-conditioned Video | [`NaviCache4Wan2.2/navicache_generate.py`](NaviCache4Wan2.2/navicache_generate.py) | [`README`](NaviCache4Wan2.2/README.md) |
 | HunyuanVideo | Text-to-Video | `NaviCache4HunyuanVideo/navicache_sample_video.py` | `scripts/hunyuan/` |
 | Open-Sora 1.2 | Text-to-Video / Evaluation | `NaviCache4OpenSora/eval/navicache/experiments/opensora.py` | `scripts/opensora/` |
 
@@ -159,6 +160,18 @@ cd Wan2.1
 bash ../NaviCache/scripts/wan/run_wan_t2v_1.3b.sh
 bash ../NaviCache/scripts/wan/run_wan_i2v_480p.sh
 ```
+
+### Wan2.2-TI2V-5B
+
+The Wan2.2 integration is a standalone entry point for the official TI2V-5B pipeline. Copy it into an official Wan2.2 checkout and run the documented single-GPU command:
+
+```bash
+cd Wan2.2
+cp ../NaviCache/NaviCache4Wan2.2/navicache_generate.py .
+python navicache_generate.py --help
+```
+
+See [`NaviCache4Wan2.2/README.md`](NaviCache4Wan2.2/README.md) for the full command, validated configuration, latency boundary, and quality results.
 
 ### HunyuanVideo
 
@@ -254,6 +267,7 @@ NaviCache/
 ├── NaviCache4HunyuanVideo/        # NaviCache script for HunyuanVideo
 ├── NaviCache4OpenSora/            # Open-Sora NaviCache evaluation and VideoSys modules
 ├── NaviCache4Wan2.1/              # NaviCache script for Wan2.1
+├── NaviCache4Wan2.2/              # Single-GPU NaviCache entry for Wan2.2-TI2V-5B
 ├── assets/                        # Paper figure PDFs
 ├── scripts/                       # Runnable helper scripts
 ├── requirements.txt
@@ -277,7 +291,7 @@ If you find NaviCache useful, please consider citing:
 
 ## 🙏 Acknowledgements
 
-We thank the contributors of Wan2.1, HunyuanVideo, Open-Sora, VideoSys, TeaCache, EasyCache, MagCache, and PAB for their excellent open-source work and inspiring research.
+We thank the contributors of Wan2.1, Wan2.2, HunyuanVideo, Open-Sora, VideoSys, TeaCache, EasyCache, MagCache, and PAB for their excellent open-source work and inspiring research.
 
 ## 📄 License
 
