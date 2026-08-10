@@ -234,6 +234,45 @@ def test_public_cli_defaults_match_verified_configuration():
     assert args.sample_guide_scale == 5.0
     assert args.base_seed == 42
     assert args.navicache_thresh == 0.05
-    assert args.navicache_ret_steps == 10
-    assert args.navicache_kalman_q == 0.05
-    assert args.navicache_kalman_r == 0.05
+    assert args.navicache_align_steps == 10
+    assert args.navicache_process_noise == 0.05
+    assert args.navicache_measurement_noise == 0.05
+
+
+def test_public_cli_maps_repository_standard_navicache_names():
+    module = load_public_module()
+    args = module.build_parser().parse_args(
+        [
+            "--ckpt_dir",
+            "weights",
+            "--navicache_thresh",
+            "0.07",
+            "--navicache_align_steps",
+            "8",
+            "--navicache_process_noise",
+            "0.03",
+            "--navicache_measurement_noise",
+            "0.04",
+        ]
+    )
+
+    assert args.navicache_thresh == 0.07
+    assert args.navicache_align_steps == 8
+    assert args.navicache_process_noise == 0.03
+    assert args.navicache_measurement_noise == 0.04
+
+
+@pytest.mark.parametrize(
+    "removed_name",
+    [
+        "--navicache_ret_steps",
+        "--navicache_kalman_q",
+        "--navicache_kalman_r",
+    ],
+)
+def test_public_cli_rejects_removed_wan22_only_names(removed_name):
+    module = load_public_module()
+    parser = module.build_parser()
+
+    with pytest.raises(SystemExit):
+        parser.parse_args(["--ckpt_dir", "weights", removed_name, "1"])

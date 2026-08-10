@@ -264,22 +264,22 @@ def build_parser() -> argparse.ArgumentParser:
         help="Accumulated normalized predicted-error threshold.",
     )
     parser.add_argument(
-        "--navicache_ret_steps",
+        "--navicache_align_steps",
         type=int,
         default=10,
-        help="Number of initial denoising steps forced to compute.",
+        help="Number of initial diffusion steps computed for alignment.",
     )
     parser.add_argument(
-        "--navicache_kalman_q",
+        "--navicache_process_noise",
         type=float,
         default=0.05,
-        help="Kalman process-noise covariance Q.",
+        help="Process-noise covariance used by NaviCache state estimation.",
     )
     parser.add_argument(
-        "--navicache_kalman_r",
+        "--navicache_measurement_noise",
         type=float,
         default=0.05,
-        help="Kalman measurement-noise covariance R.",
+        help="Measurement-noise covariance used by NaviCache state estimation.",
     )
     return parser
 
@@ -341,9 +341,9 @@ def generate(args) -> None:
         pipeline.model,
         NaviCacheConfig(
             threshold=args.navicache_thresh,
-            ret_steps=args.navicache_ret_steps,
-            kalman_q=args.navicache_kalman_q,
-            kalman_r=args.navicache_kalman_r,
+            ret_steps=args.navicache_align_steps,
+            kalman_q=args.navicache_process_noise,
+            kalman_r=args.navicache_measurement_noise,
             sample_steps=args.sample_steps,
         ),
     )
