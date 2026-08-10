@@ -37,7 +37,7 @@ The removed names will not be retained as aliases. The parser will reject them. 
 
 - Match the tone and compactness of the existing GitHub model READMEs.
 - Keep commands consistent with the actual public CLI and its validated defaults.
-- Use `./Wan2.2-TI2V-5B` as the checkpoint example and `examples/input.png` as the replaceable image example.
+- Use `./Wan2.2-TI2V-5B` as the checkpoint example and the official `examples/i2v_input.JPG` sample image.
 - Retain the balanced NaviCache values: threshold `0.05`, alignment steps `10`, process noise `0.05`, and measurement noise `0.05`.
 - State that users should replace the example image with their own file.
 - Remove the parameter table, benchmark Results section, latency explanation, quality metrics, Limitations section, internal runner/provenance language, and detailed implementation commentary.
