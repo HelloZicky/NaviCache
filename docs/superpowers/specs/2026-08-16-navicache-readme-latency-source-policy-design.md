@@ -38,7 +38,7 @@ The paper reports these primary latency configurations:
 
 Paper-derived rows must be labeled `RTX 4090, reported in paper`. The local provenance record must retain the paper table number, complete configuration, selected mode, and copied values.
 
-The policy applies to every model integration README, including Wan2.1, HunyuanVideo, Open-Sora, Wan2.2, and future integrations. For exact matches, the reusable Table 1 values are:
+The policy applies to every model integration README, including the current Wan2.1, HunyuanVideo, and Open-Sora release scope. For exact matches, the reusable Table 1 values are:
 
 | Model/configuration | Method | Latency | Speedup |
 |---|---|---:|---:|
@@ -81,7 +81,6 @@ Current integration routing includes:
 | I2V 14B 720P | subset8, actual GPU labeled |
 | HunyuanVideo, 129 frames, 960x544, 50 steps | Paper, RTX 4090 |
 | Open-Sora 1.2, 51 frames, 848x480, 30 steps | Paper, RTX 4090 |
-| Wan2.2 and any other unmatched task/configuration | subset8, actual GPU labeled |
 
 ## Visual Showcase Policy
 
