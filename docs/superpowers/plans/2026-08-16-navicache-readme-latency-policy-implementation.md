@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Update the shared NaviCache README release standard and provide a new-session goal prompt that applies the approved paper-first latency policy without changing existing videos.
+**Goal:** Update the shared NaviCache README release standard and provide a new-session goal prompt that applies the approved paper-first latency policy across every model integration without changing existing videos.
 
 **Architecture:** Keep policy in the workspace-root `AGENTS.md`, where all model integrations inherit it. Treat exact paper configurations and locally benchmarked subset8 configurations as two provenance paths that converge on the same `model_forward_latency_sec` table format, with hardware and source shown per row.
 
@@ -16,7 +16,7 @@
 - Run uncovered configurations on subset8 and label the actual GPU.
 - Keep existing showcase video files unchanged.
 - Showcase selection is dataset-agnostic and prioritizes samples where the competitor is visibly worse while NaviCache remains close to Native.
-- Preserve unrelated user changes in `NaviCache4Wan2.1/README.md`.
+- Preserve unrelated user changes in all integration READMEs, including the existing change in `NaviCache4Wan2.1/README.md`.
 
 ---
 
@@ -65,6 +65,9 @@ Expected: the first command finds every new policy concept; the second command f
 **Files:**
 - Verify only: `../AGENTS.md`
 - Verify only: `NaviCache4Wan2.1/README.md`
+- Verify only: `NaviCache4HunyuanVideo/README.md`
+- Verify only: `NaviCache4OpenSora/README.md`
+- Verify only: `NaviCache4Wan2.2/README.md`
 - Verify only: `docs/superpowers/specs/2026-08-16-navicache-readme-latency-source-policy-design.md`
 
 **Interfaces:**
@@ -77,7 +80,7 @@ Run:
 
 ```powershell
 git status --short
-git diff -- NaviCache4Wan2.1/README.md
+git diff -- NaviCache4Wan2.1/README.md NaviCache4HunyuanVideo/README.md NaviCache4OpenSora/README.md NaviCache4Wan2.2/README.md
 ```
 
 Expected: no video file is modified; pre-existing README changes remain preserved and distinguishable from this policy work.
@@ -88,7 +91,7 @@ Confirm the new policy does not simultaneously require paper-derived latency to 
 
 - [x] **Step 3: Write the handoff goal**
 
-The goal prompt must tell the new session to read `AGENTS.md`, the approved design, the paper, the current README, and current git status before editing. It must map Wan2.1 T2V 1.3B to the paper's RTX 4090 values (`214.93`, `121.57`, `106.97` seconds), retain validated subset8 rows for uncovered 14B configurations only after confirming their actual GPU and raw provenance, add hardware/source labeling, keep videos unchanged, synchronize mini-tables, and run fresh verification.
+The goal prompt must tell the new session to read `AGENTS.md`, the approved design, the paper, every integration README, and current git status before editing. It must audit Wan2.1, HunyuanVideo, Open-Sora, Wan2.2, and future integration directories; reuse exact Table 1 values for matching Wan2.1-1.3B, HunyuanVideo, and Open-Sora 1.2 configurations; use validated subset8 results for every uncovered or mismatched configuration only after confirming actual GPU and raw provenance; add hardware/source labeling; keep videos unchanged; synchronize mini-tables; and run fresh verification.
 
 - [x] **Step 4: Commit only the plan document if requested**
 

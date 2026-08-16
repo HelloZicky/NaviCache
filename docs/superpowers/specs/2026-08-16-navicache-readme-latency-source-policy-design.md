@@ -38,13 +38,21 @@ The paper reports these primary latency configurations:
 
 Paper-derived rows must be labeled `RTX 4090, reported in paper`. The local provenance record must retain the paper table number, complete configuration, selected mode, and copied values.
 
-For the current Wan2.1 T2V 1.3B README configuration, `navicache_thresh=0.05` and `navicache_align_steps=10` correspond to the paper's NaviCache mid mode. The reusable values are:
+The policy applies to every model integration README, including Wan2.1, HunyuanVideo, Open-Sora, Wan2.2, and future integrations. For exact matches, the reusable Table 1 values are:
 
-| Method | Latency | Speedup |
-|---|---:|---:|
-| Native | 214.93 s | 1.00x |
-| TeaCache | 121.57 s | 1.77x |
-| NaviCache mid | 106.97 s | 2.01x |
+| Model/configuration | Method | Latency | Speedup |
+|---|---|---:|---:|
+| Wan2.1-1.3B, 81f, 832x480, 50 steps | Native | 214.93 s | 1.00x |
+| Wan2.1-1.3B, 81f, 832x480, 50 steps | TeaCache | 121.57 s | 1.77x |
+| Wan2.1-1.3B, 81f, 832x480, 50 steps | NaviCache fast/mid/slow | 96.40 / 106.97 / 115.86 s | 2.23x / 2.01x / 1.86x |
+| HunyuanVideo, 129f, 960x544, 50 steps | Native | 2363.83 s | 1.00x |
+| HunyuanVideo, 129f, 960x544, 50 steps | TeaCache / MagCache / EasyCache | 1070.14 / 882.76 / 1100.30 s | 2.21x / 2.68x / 2.15x |
+| HunyuanVideo, 129f, 960x544, 50 steps | NaviCache fast/mid/slow | 928.45 / 1089.43 / 1150.87 s | 2.55x / 2.17x / 2.05x |
+| Open-Sora 1.2, 51f, 848x480, 30 steps | Native | 56.48 s | 1.00x |
+| Open-Sora 1.2, 51f, 848x480, 30 steps | TeaCache / MagCache / EasyCache | 41.38 / 26.07 / 34.55 s | 1.36x / 2.17x / 1.63x |
+| Open-Sora 1.2, 51f, 848x480, 30 steps | NaviCache fast/mid/slow | 31.80 / 35.29 / 40.98 s | 1.78x / 1.60x / 1.38x |
+
+Published NaviCache mode parameters are: Wan2.1 `Nalign=10`, thresholds fast/mid/slow `0.07/0.05/0.04`; HunyuanVideo `Nalign=5`, thresholds `0.040/0.035/0.025`; Open-Sora 1.2 `Nalign=5`, thresholds `0.55/0.35/0.15`. A README may use a published value only when its command selects the corresponding mode.
 
 ## Subset8 Rule
 
@@ -63,7 +71,7 @@ Each summary must remain reproducible from its raw JSONL. Speedup is always `nat
 
 The main latency table adds a `Hardware / Source` column. Paper rows and subset8 rows may share the table because their timing field is the same, but their different hardware must be visible. The visual-quality mini-table reuses the corresponding latency row and does not introduce separate runtime measurements.
 
-For the current Wan2.1 README:
+Current integration routing includes:
 
 | Configuration | Source |
 |---|---|
@@ -71,6 +79,9 @@ For the current Wan2.1 README:
 | T2V 14B, 1280x720 | subset8, actual GPU labeled |
 | I2V 14B 480P | subset8, actual GPU labeled |
 | I2V 14B 720P | subset8, actual GPU labeled |
+| HunyuanVideo, 129 frames, 960x544, 50 steps | Paper, RTX 4090 |
+| Open-Sora 1.2, 51 frames, 848x480, 30 steps | Paper, RTX 4090 |
+| Wan2.2 and any other unmatched task/configuration | subset8, actual GPU labeled |
 
 ## Visual Showcase Policy
 
