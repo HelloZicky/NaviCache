@@ -90,7 +90,7 @@ python navicache_generate.py \
 | **NaviCache** (`threshold=0.05`, `align_steps=10`) | **106.97 s** | **2.01x** | RTX 4090 |
 
 <div align="center">
-  <video src="../assets/wan21_comparison/t2v13b480_boat_comparison.mp4" width="936" controls muted loop></video>
+  <video src="https://github.com/user-attachments/assets/d5d888eb-a045-43bb-bce5-da73c6ad130f" width="936" controls muted loop></video>
   <br />
   <img src="../assets/wan21_comparison/speedup/t2v13b480_speedup.png" width="936" alt="Wan2.1 T2V 1.3B latency and speedup comparison" />
 </div>
@@ -109,7 +109,7 @@ A boat sailing leisurely along the Seine River with the Eiffel Tower in backgrou
 | **NaviCache** (`threshold=0.05`, `align_steps=10`) | **1286.33 s** | **2.71x** | NVIDIA A100-SXM4-80GB |
 
 <div align="center">
-  <video src="../assets/wan21_comparison/t2v14b720_skateboarding_comparison.mp4" width="960" controls muted loop></video>
+  <video src="https://github.com/user-attachments/assets/9fc996d2-1aa1-4f2d-bc0c-0431f6f5ec7a" width="960" controls muted loop></video>
   <br />
   <img src="../assets/wan21_comparison/speedup/t2v14b720_speedup.png" width="960" alt="Wan2.1 T2V 14B latency and speedup comparison" />
 </div>
@@ -128,7 +128,7 @@ A person is skateboarding
 | **NaviCache** (`threshold=0.05`, `align_steps=10`) | **386.70 s** | **1.92x** | NVIDIA A100-SXM4-80GB |
 
 <div align="center">
-  <video src="../assets/wan21_comparison/i2v14b480_ribbon_dancer_comparison.mp4" width="936" controls muted loop></video>
+  <video src="https://github.com/user-attachments/assets/d4ae7e82-3094-4e9c-975e-19529a88ec0e" width="936" controls muted loop></video>
   <br />
   <img src="../assets/wan21_comparison/speedup/i2v14b480_speedup.png" width="936" alt="Wan2.1 I2V 14B 480p latency and speedup comparison" />
 </div>
@@ -147,7 +147,7 @@ The ribbon dancer spins rapidly across the courtyard, both red silk ribbons trac
 | **NaviCache** (`threshold=0.05`, `align_steps=10`) | **937.67 s** | **1.94x** | NVIDIA A100-SXM4-80GB |
 
 <div align="center">
-  <video src="../assets/wan21_comparison/i2v14b720_clockwork_hummingbird_comparison.mp4" width="960" controls muted loop></video>
+  <video src="https://github.com/user-attachments/assets/43bf9834-5910-48b6-baf2-0324ee409608" width="960" controls muted loop></video>
   <br />
   <img src="../assets/wan21_comparison/speedup/i2v14b720_speedup.png" width="960" alt="Wan2.1 I2V 14B 720p latency and speedup comparison" />
 </div>
