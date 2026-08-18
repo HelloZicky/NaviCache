@@ -46,7 +46,7 @@ The integration defaults select Open-Sora 1.2, 51 frames, 480p at a 9:16 aspect 
 | **NaviCache** (`threshold=0.35`, `align_steps=5`) | **35.29 s** | **1.60x** | RTX 4090 |
 
 <p align="center">
-  <video src="https://github.com/user-attachments/assets/ed2133b1-9a85-47f8-b235-64f5b49733c4" width="960" controls muted loop></video>
+  <video src="https://github.com/user-attachments/assets/5df6e2d1-ee09-4134-b165-86f00ec1e1dd" width="960" controls muted loop></video>
 </p>
 
 <p align="center">
