@@ -79,84 +79,83 @@ python navicache_generate.py \
 
 ## Results
 
-### Inference Latency Comparison
-
-| Wan2.1 configuration | Resolution | Wan2.1 | TeaCache | TeaCache speedup | NaviCache | NaviCache speedup |
-|:---------------------|:----------:|:-------------------:|:----------------------------:|:----------------:|:----------------------:|:-----------------:|
-| T2V 1.3B | 832x480 | 488.0 s | 209.5 s | 2.33x | 160.1 s | 3.05x |
-| T2V 14B | 1280x720 | 3528.1 s | 1784.2 s | 1.98x | 1361.1 s | 2.59x |
-| I2V 14B 480P | 832x480 | 825.9 s | 604.4 s | 1.37x | 481.4 s | 1.72x |
-| I2V 14B 720P | 1280x720 | 1887.2 s | 1296.2 s | 1.46x | 1007.9 s | 1.87x |
-
 ### Visual Quality Comparison
 
 #### T2V 1.3B, 832x480
 
+| Method | Latency | Speedup | Hardware |
+|:-------|--------:|--------:|:---------|
+| Wan2.1 | 214.93 s | 1.00x | RTX 4090 |
+| TeaCache | 121.57 s | 1.77x | RTX 4090 |
+| **NaviCache** (`threshold=0.05`, `align_steps=10`) | **106.97 s** | **2.01x** | RTX 4090 |
+
 <div align="center">
   <video src="../assets/wan21_comparison/t2v13b480_boat_comparison.mp4" width="936" controls muted loop></video>
+  <br />
+  <img src="../assets/wan21_comparison/speedup/t2v13b480_speedup.png" width="936" alt="Wan2.1 T2V 1.3B latency and speedup comparison" />
 </div>
-
-| Wan2.1 | TeaCache | NaviCache |
-|:------:|:--------:|:---------:|
-| 488.0 s (1.00x) | 209.5 s (2.33x) | **160.1 s (3.05x)** |
 
 <details>
 <summary>Prompt: A boat sailing leisurely along the Seine River with the Eiffel Tower in background, zoom out</summary>
 
 A boat sailing leisurely along the Seine River with the Eiffel Tower in background, zoom out
 
-</details>
-
 #### T2V 14B, 1280x720
+
+| Method | Latency | Speedup | Hardware |
+|:-------|--------:|--------:|:---------|
+| Wan2.1 | 3483.95 s | 1.00x | NVIDIA A100-SXM4-80GB |
+| TeaCache (`threshold=0.20`) | 1736.61 s | 2.01x | NVIDIA A100-SXM4-80GB |
+| **NaviCache** (`threshold=0.05`, `align_steps=10`) | **1286.33 s** | **2.71x** | NVIDIA A100-SXM4-80GB |
 
 <div align="center">
   <video src="../assets/wan21_comparison/t2v14b720_skateboarding_comparison.mp4" width="960" controls muted loop></video>
+  <br />
+  <img src="../assets/wan21_comparison/speedup/t2v14b720_speedup.png" width="960" alt="Wan2.1 T2V 14B latency and speedup comparison" />
 </div>
-
-| Wan2.1 | TeaCache | NaviCache |
-|:------:|:--------:|:---------:|
-| 3528.1 s (1.00x) | 1784.2 s (1.98x) | **1361.1 s (2.59x)** |
 
 <details>
 <summary>Prompt: A person is skateboarding</summary>
 
 A person is skateboarding
 
-</details>
-
 #### I2V 14B, 832x480
+
+| Method | Latency | Speedup | Hardware |
+|:-------|--------:|--------:|:---------|
+| Wan2.1 | 744.00 s | 1.00x | NVIDIA A100-SXM4-80GB |
+| TeaCache (`threshold=0.10`) | 532.27 s | 1.40x | NVIDIA A100-SXM4-80GB |
+| **NaviCache** (`threshold=0.05`, `align_steps=10`) | **386.70 s** | **1.92x** | NVIDIA A100-SXM4-80GB |
 
 <div align="center">
   <video src="../assets/wan21_comparison/i2v14b480_ribbon_dancer_comparison.mp4" width="936" controls muted loop></video>
+  <br />
+  <img src="../assets/wan21_comparison/speedup/i2v14b480_speedup.png" width="936" alt="Wan2.1 I2V 14B 480p latency and speedup comparison" />
 </div>
-
-| Wan2.1 | TeaCache | NaviCache |
-|:------:|:--------:|:---------:|
-| 825.9 s (1.00x) | 604.4 s (1.37x) | **481.4 s (1.72x)** |
 
 <details>
 <summary>Prompt</summary>
 
 The ribbon dancer spins rapidly across the courtyard, both red silk ribbons tracing wide fluid arcs as her layered costume billows; the camera tracks sideways with strong natural background parallax.
 
-</details>
-
 #### I2V 14B, 1280x720
+
+| Method | Latency | Speedup | Hardware |
+|:-------|--------:|--------:|:---------|
+| Wan2.1 | 1817.79 s | 1.00x | NVIDIA A100-SXM4-80GB |
+| TeaCache (`threshold=0.15`) | 1213.66 s | 1.50x | NVIDIA A100-SXM4-80GB |
+| **NaviCache** (`threshold=0.05`, `align_steps=10`) | **937.67 s** | **1.94x** | NVIDIA A100-SXM4-80GB |
 
 <div align="center">
   <video src="../assets/wan21_comparison/i2v14b720_clockwork_hummingbird_comparison.mp4" width="960" controls muted loop></video>
+  <br />
+  <img src="../assets/wan21_comparison/speedup/i2v14b720_speedup.png" width="960" alt="Wan2.1 I2V 14B 720p latency and speedup comparison" />
 </div>
-
-| Wan2.1 | TeaCache | NaviCache |
-|:------:|:--------:|:---------:|
-| 1887.2 s (1.00x) | 1296.2 s (1.46x) | **1007.9 s (1.87x)** |
 
 <details>
 <summary>Prompt</summary>
 
 The clockwork hummingbird beats both articulated wings rapidly and flies from one red flower to the next; tiny gears turn visibly while the camera arcs around it through the greenhouse with deep parallax.
-
-</details>
 
 ## Acknowledgements
 
