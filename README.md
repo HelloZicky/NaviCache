@@ -12,6 +12,11 @@ This is the official repository for **NaviCache: Test-Time Self-Calibration Cach
 
 **NaviCache** is a training-free, offline calibration-free, test-time self-calibration caching method for accelerating video diffusion models. It calibrates itself during inference, tracks feature evolution with a lightweight state-space estimator, and adaptively decides whether to skip or compute DiT blocks.
 
+<p align="center">
+  <img src="assets/navicache-demo-x-readable.gif" alt="NaviCache Demo" width="800">
+</p>
+
+
 ## ✨ Highlights
 
 - **No offline calibration**: no calibration datasets, pre-processing, or per-model fitting.
