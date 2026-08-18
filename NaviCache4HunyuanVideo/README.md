@@ -1,10 +1,10 @@
 # NaviCache for HunyuanVideo
 
-NaviCache is a training-free test-time self-calibration caching method for accelerating video generation. This directory provides the NaviCache sampling script for [HunyuanVideo](https://github.com/Tencent-Hunyuan/HunyuanVideo).
+NaviCache is a training-free, test-time self-calibration caching method for accelerating [HunyuanVideo](https://github.com/Tencent-Hunyuan/HunyuanVideo) generation.
 
 ## Usage
 
-Follow [HunyuanVideo](https://github.com/Tencent-Hunyuan/HunyuanVideo) to clone the repo, finish the installation, and download the required model weights. Then copy `navicache_sample_video.py` in this repo to the HunyuanVideo repo.
+Install HunyuanVideo following the official repository, then copy the NaviCache sampling script into it:
 
 ```bash
 git clone https://github.com/Tencent-Hunyuan/HunyuanVideo.git
@@ -14,7 +14,7 @@ cp NaviCache/NaviCache4HunyuanVideo/navicache_sample_video.py HunyuanVideo/
 cd HunyuanVideo
 ```
 
-For 544 x 960 generation, set `--video-size` to `544 960`:
+Run the paper configuration at 129 frames, 960x544, and 50 sampling steps:
 
 ```bash
 python3 navicache_sample_video.py \
@@ -23,27 +23,32 @@ python3 navicache_sample_video.py \
     --infer-steps 50 \
     --prompt "A cat walks on the grass, realistic style." \
     --use-cpu-offload \
-    --navicache_thresh 0.025 \
+    --navicache_thresh 0.040 \
     --navicache_align_steps 5 \
     --save-path ./navicache_results
 ```
 
-For 720 x 1280 generation, set `--video-size` to `720 1280`:
+## Results
 
-```bash
-python3 navicache_sample_video.py \
-    --video-size 720 1280 \
-    --video-length 129 \
-    --infer-steps 50 \
-    --prompt "A cat walks on the grass, realistic style." \
-    --use-cpu-offload \
-    --navicache_thresh 0.025 \
-    --navicache_align_steps 5 \
-    --save-path ./navicache_results
-```
+### Visual Quality Comparison
 
-The generated video and `time_cost.json` are saved under `--save-path`.
+#### HunyuanVideo, 129 frames, 960x544, 50 steps
+
+| Method | Latency | Speedup | Hardware |
+|:-------|--------:|--------:|:---------|
+| HunyuanVideo | 2363.83 s | 1.00x | NVIDIA H20 |
+| TeaCache | 1070.14 s | 2.21x | NVIDIA H20 |
+| **NaviCache** (`threshold=0.040`, `align_steps=5`) | **928.45 s** | **2.55x** | NVIDIA H20 |
+
+<div align="center">
+  <video src="../assets/hunyuanvideo_comparison/hunyuan_book_comparison.mp4" width="960" controls muted loop></video>
+  <br />
+  <img src="../assets/hunyuanvideo_comparison/speedup/hunyuanvideo_speedup.png" width="960" alt="HunyuanVideo latency and speedup comparison" />
+</div>
+
+**Prompt:** `a book`<br />
+**Analysis:** TeaCache drifts to an unrelated subject, while NaviCache stays close to the Native result.
 
 ## Acknowledgements
 
-We would like to thank the contributors to [HunyuanVideo](https://github.com/Tencent-Hunyuan/HunyuanVideo).
+We would like to thank the contributors to [HunyuanVideo](https://github.com/Tencent-Hunyuan/HunyuanVideo) and [TeaCache](https://github.com/ali-vilab/TeaCache).

@@ -1,73 +1,27 @@
-# NaviCache for Open-Sora
+# NaviCache for Open-Sora 1.2
 
-This directory provides the Open-Sora NaviCache evaluation code. It contains:
+NaviCache is a training-free, test-time self-calibration caching method for accelerating [Open-Sora 1.2](https://github.com/hpcaitech/Open-Sora) text-to-video generation.
 
-- `videosys/`: the VideoSys-based Open-Sora inference framework used by the evaluation script.
-- `eval/`: generation, VBench, PSNR, LPIPS, and SSIM evaluation utilities.
+## Usage
 
-## Installation
+Clone NaviCache, install its dependencies, and download the Open-Sora 1.2 checkpoints:
 
-Prerequisites:
-
-- Python >= 3.10
-- PyTorch >= 2.0
-- CUDA >= 11.6
-
-We recommend using Anaconda to create a clean environment:
-
-```shell
-conda create -n navicache python=3.10 -y
-conda activate navicache
-```
-
-Install NaviCache from the repository root:
-
-```shell
-git clone https://github.com/HelloZicky/NaviCache
+```bash
+git clone https://github.com/HelloZicky/NaviCache.git
 cd NaviCache
 pip install -r requirements.txt
-```
-
-## Open-Sora Weights
-
-The Open-Sora evaluation script uses the following Hugging Face model ids by default:
-
-```text
-hpcai-tech/OpenSora-STDiT-v3
-hpcai-tech/OpenSora-VAE-v1.2
-DeepFloyd/t5-v1_1-xxl
-```
-
-For offline or more reproducible evaluation, download the weights before running:
-
-```shell
-mkdir -p checkpoints/opensora
 
 huggingface-cli download hpcai-tech/OpenSora-STDiT-v3 \
     --local-dir checkpoints/opensora/OpenSora-STDiT-v3
-
 huggingface-cli download hpcai-tech/OpenSora-VAE-v1.2 \
     --local-dir checkpoints/opensora/OpenSora-VAE-v1.2
-
 huggingface-cli download DeepFloyd/t5-v1_1-xxl \
     --local-dir checkpoints/opensora/t5-v1_1-xxl
 ```
 
-If Hugging Face access is slow in your region, set a mirror endpoint before running the same commands:
+Run the paper configuration at 51 frames, 848x480, and 30 sampling steps:
 
-```shell
-export HF_ENDPOINT=https://hf-mirror.com
-```
-
-## Evaluation
-
-The evaluation workflow first generates videos from VBench prompts, then computes VBench, PSNR, LPIPS, and SSIM scores.
-
-### Generate Videos
-
-Run from the repository root:
-
-```shell
+```bash
 python NaviCache4OpenSora/eval/navicache/experiments/opensora.py \
     --transformer_path checkpoints/opensora/OpenSora-STDiT-v3 \
     --vae_path checkpoints/opensora/OpenSora-VAE-v1.2 \
@@ -77,49 +31,31 @@ python NaviCache4OpenSora/eval/navicache/experiments/opensora.py \
     --navicache_align_steps 5
 ```
 
-By default, `opensora.py` uses `--loop 5` and generates five random videos for each prompt, following the VBench evaluation protocol.
+The integration defaults select Open-Sora 1.2, 51 frames, 480p at a 9:16 aspect ratio (848x480), and 30 sampling steps.
 
-The script reads prompts from:
+## Results
 
-```text
-NaviCache4OpenSora/eval/navicache/vbench/VBench_full_info.json
-```
+### Visual Quality Comparison
 
-and saves videos to:
+#### Open-Sora 1.2, 51 frames, 848x480, 30 steps
 
-```text
-NaviCache4OpenSora/eval/navicache/samples/opensora_base
-NaviCache4OpenSora/eval/navicache/samples/opensora_navicache
-```
+| Method | Latency | Speedup | Hardware |
+|:-------|--------:|--------:|:---------|
+| Open-Sora 1.2 | 56.48 s | 1.00x | RTX 4090 |
+| TeaCache | 41.38 s | 1.36x | RTX 4090 |
+| **NaviCache** (`threshold=0.35`, `align_steps=5`) | **35.29 s** | **1.60x** | RTX 4090 |
 
-To run only one generation branch:
+<p align="center">
+  <video src="../assets/opensora_comparison/opensora_train_accelerating_comparison.mp4" width="960" controls muted loop></video>
+</p>
 
-```shell
-python NaviCache4OpenSora/eval/navicache/experiments/opensora.py --mode base
-python NaviCache4OpenSora/eval/navicache/experiments/opensora.py --mode navicache
-```
+<p align="center">
+  <img src="../assets/opensora_comparison/speedup/opensora12_speedup.png" width="960" alt="Open-Sora 1.2 speedup comparison" />
+</p>
 
-NaviCache hyperparameters can be changed directly from the command line.
-
-### Calculate VBench
-
-```shell
-python NaviCache4OpenSora/eval/navicache/vbench/run_vbench.py \
-    --video_path NaviCache4OpenSora/eval/navicache/samples/opensora_navicache \
-    --save_path NaviCache4OpenSora/eval/navicache/vbench_results/navicache
-
-python NaviCache4OpenSora/eval/navicache/vbench/cal_vbench.py \
-    --score_dir NaviCache4OpenSora/eval/navicache/vbench_results/navicache
-```
-
-### Calculate PSNR, LPIPS, and SSIM
-
-```shell
-python NaviCache4OpenSora/eval/navicache/common_metrics/eval.py \
-    --gt_video_dir NaviCache4OpenSora/eval/navicache/samples/opensora_base \
-    --generated_video_dir NaviCache4OpenSora/eval/navicache/samples/opensora_navicache
-```
+**Prompt:** `a train accelerating to gain speed`<br />
+**Analysis:** TeaCache turns the tall green train into a low blue-and-red streak with a mismatched car body, whereas NaviCache retains the Native train, track-side composition, and left-to-right trajectory.
 
 ## Acknowledgements
 
-We would like to thank the contributors to [Open-Sora](https://github.com/hpcaitech/Open-Sora) and [VideoSys](https://github.com/NUS-HPC-AI-Lab/VideoSys).
+We would like to thank the contributors to [Open-Sora](https://github.com/hpcaitech/Open-Sora), [VideoSys](https://github.com/NUS-HPC-AI-Lab/VideoSys), and [TeaCache](https://github.com/ali-vilab/TeaCache).
