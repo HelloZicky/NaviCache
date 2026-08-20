@@ -46,7 +46,7 @@ The integration defaults select Open-Sora 1.2, 51 frames, 480p at a 9:16 aspect 
 | **NaviCache** (`threshold=0.35`, `align_steps=5`) | **35.29 s** | **1.60x** | RTX 4090 |
 
 <p align="center">
-  <video src="../assets/opensora_comparison/opensora_train_accelerating_comparison.mp4" width="960" controls muted loop></video>
+  <video src="https://github.com/user-attachments/assets/3a4aed06-7d71-4bf5-a994-99c88a4f24ee" width="960" controls muted loop></video>
 </p>
 
 <p align="center">
