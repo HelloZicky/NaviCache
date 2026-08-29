@@ -90,7 +90,7 @@ python navicache_generate.py \
 | **NaviCache** (`threshold=0.05`, `align_steps=10`) | **106.97 s** | **2.01x** | RTX 4090 |
 
 <div align="center">
-  <video src="../assets/wan21_comparison/t2v13b480_boat_comparison.mp4" width="936" controls muted loop></video>
+  <video src="https://github.com/user-attachments/assets/d5d888eb-a045-43bb-bce5-da73c6ad130f" width="936" controls muted loop></video>
   <br />
   <img src="../assets/wan21_comparison/speedup/t2v13b480_speedup.png" width="936" alt="Wan2.1 T2V 1.3B latency and speedup comparison" />
 </div>
@@ -99,6 +99,8 @@ python navicache_generate.py \
 <summary>Prompt: A boat sailing leisurely along the Seine River with the Eiffel Tower in background, zoom out</summary>
 
 A boat sailing leisurely along the Seine River with the Eiffel Tower in background, zoom out
+
+</details>
 
 #### T2V 14B, 1280x720
 
@@ -109,7 +111,7 @@ A boat sailing leisurely along the Seine River with the Eiffel Tower in backgrou
 | **NaviCache** (`threshold=0.05`, `align_steps=10`) | **1286.33 s** | **2.71x** | NVIDIA A100-SXM4-80GB |
 
 <div align="center">
-  <video src="../assets/wan21_comparison/t2v14b720_skateboarding_comparison.mp4" width="960" controls muted loop></video>
+  <video src="https://github.com/user-attachments/assets/9fc996d2-1aa1-4f2d-bc0c-0431f6f5ec7a" width="960" controls muted loop></video>
   <br />
   <img src="../assets/wan21_comparison/speedup/t2v14b720_speedup.png" width="960" alt="Wan2.1 T2V 14B latency and speedup comparison" />
 </div>
@@ -118,6 +120,8 @@ A boat sailing leisurely along the Seine River with the Eiffel Tower in backgrou
 <summary>Prompt: A person is skateboarding</summary>
 
 A person is skateboarding
+
+</details>
 
 #### I2V 14B, 832x480
 
@@ -128,7 +132,7 @@ A person is skateboarding
 | **NaviCache** (`threshold=0.05`, `align_steps=10`) | **386.70 s** | **1.92x** | NVIDIA A100-SXM4-80GB |
 
 <div align="center">
-  <video src="../assets/wan21_comparison/i2v14b480_ribbon_dancer_comparison.mp4" width="936" controls muted loop></video>
+  <video src="https://github.com/user-attachments/assets/d4ae7e82-3094-4e9c-975e-19529a88ec0e" width="936" controls muted loop></video>
   <br />
   <img src="../assets/wan21_comparison/speedup/i2v14b480_speedup.png" width="936" alt="Wan2.1 I2V 14B 480p latency and speedup comparison" />
 </div>
@@ -137,6 +141,8 @@ A person is skateboarding
 <summary>Prompt</summary>
 
 The ribbon dancer spins rapidly across the courtyard, both red silk ribbons tracing wide fluid arcs as her layered costume billows; the camera tracks sideways with strong natural background parallax.
+
+</details>
 
 #### I2V 14B, 1280x720
 
@@ -147,7 +153,7 @@ The ribbon dancer spins rapidly across the courtyard, both red silk ribbons trac
 | **NaviCache** (`threshold=0.05`, `align_steps=10`) | **937.67 s** | **1.94x** | NVIDIA A100-SXM4-80GB |
 
 <div align="center">
-  <video src="../assets/wan21_comparison/i2v14b720_clockwork_hummingbird_comparison.mp4" width="960" controls muted loop></video>
+  <video src="https://github.com/user-attachments/assets/43bf9834-5910-48b6-baf2-0324ee409608" width="960" controls muted loop></video>
   <br />
   <img src="../assets/wan21_comparison/speedup/i2v14b720_speedup.png" width="960" alt="Wan2.1 I2V 14B 720p latency and speedup comparison" />
 </div>
@@ -156,6 +162,8 @@ The ribbon dancer spins rapidly across the courtyard, both red silk ribbons trac
 <summary>Prompt</summary>
 
 The clockwork hummingbird beats both articulated wings rapidly and flies from one red flower to the next; tiny gears turn visibly while the camera arcs around it through the greenhouse with deep parallax.
+
+</details>
 
 ## Acknowledgements
 

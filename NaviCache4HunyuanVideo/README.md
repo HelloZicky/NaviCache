@@ -41,7 +41,7 @@ python3 navicache_sample_video.py \
 | **NaviCache** (`threshold=0.040`, `align_steps=5`) | **928.45 s** | **2.55x** | NVIDIA H20 |
 
 <div align="center">
-  <video src="../assets/hunyuanvideo_comparison/hunyuan_book_comparison.mp4" width="960" controls muted loop></video>
+  <video src="https://github.com/user-attachments/assets/f06df5c8-ca89-49fc-a49c-82f8e6a9bcfb" width="960" controls muted loop></video>
   <br />
   <img src="../assets/hunyuanvideo_comparison/speedup/hunyuanvideo_speedup.png" width="960" alt="HunyuanVideo latency and speedup comparison" />
 </div>
